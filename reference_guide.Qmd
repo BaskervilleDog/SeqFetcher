@@ -1,0 +1,332 @@
+# RNA-Seq Data Download Quick Reference
+
+## 🚀 Quick Start
+
+### 1. Get SRR accessions from GEO
+
+```{bash}
+# Option A: Using the comprehensive script
+./download_data.sh geo-to-srr -g GSE280953
+
+# Option B: Using E-utilities directly
+esearch -db gds -query "GSE280953" | \
+  elink -target sra | \
+  efetch -format runinfo | \
+  tail -n +2 | cut -d',' -f1 > SRR_list.txt
+```
+
+### 2. Choose your download method
+
+**For fast, reliable connections:**
+
+```{bash}
+./download_data.sh sra-parallel -i SRR_list.txt -t 16
+```
+
+**For unstable connections:**
+
+```{bash}
+./download_data.sh sra-prefetch -i SRR_list.txt -t 8
+```
+
+**Fastest overall (ENA):**
+
+```{bash}
+./download_data.sh ena -i SRR_list.txt
+```
+
+---
+
+## 📊 Comparison of Methods
+
+| Method | Speed | Reliability | Best For | Notes |
+|--------|-------|-------------|----------|-------|
+| **parallel-fastq-dump** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Multiple files | Fastest for batch downloads |
+| **fasterq-dump** | ⭐⭐⭐⭐ | ⭐⭐⭐ | Single files | Good balance |
+| **prefetch + fasterq-dump** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Unstable connections | Most robust |
+| **ENA** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | International users | Often faster than NCBI |
+| **aspera** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Large files | Requires setup |
+
+---
+
+## 🛠️ Installation Commands
+
+### SRA Toolkit
+
+```{bash}
+# Using conda (recommended)
+conda install -c bioconda sra-tools
+
+# Verify installation
+fastq-dump --version
+fasterq-dump --version
+prefetch --version
+```
+
+### parallel-fastq-dump
+
+```{bash}
+pip install parallel-fastq-dump
+
+# Verify
+parallel-fastq-dump --version
+```
+
+### NCBI Datasets
+
+```{bash}
+conda install -c conda-forge ncbi-datasets-cli
+
+# Verify
+datasets --version
+```
+
+### NCBI E-utilities
+
+```{bash}
+conda install -c bioconda entrez-direct
+
+# Verify
+esearch -version
+```
+
+### GNU Parallel (for batch processing)
+
+```{bash}
+# Ubuntu/Debian
+sudo apt-get install parallel
+
+# macOS
+brew install parallel
+
+# Conda
+conda install -c conda-forge parallel
+```
+
+---
+
+## 💡 Common Use Cases
+
+### Case 1: Download entire GEO dataset
+
+```{bash}
+# Step 1: Get SRR list
+./download_data.sh geo-to-srr -g GSE280953
+
+# Step 2: Download all files
+./download_data.sh sra-parallel -i SRR_list.txt -t 16 -o my_project/data
+
+# Step 3: Verify downloads
+./post_download_qc.sh my_project/data/fastq
+```
+
+### Case 2: Resume interrupted download
+
+```{bash}
+# Use the tracker script
+./download_tracker.sh SRR_list.txt downloads/fastq
+
+# This creates:
+# - completed_downloads.txt (successful)
+# - failed_downloads.txt (failed)
+
+# The script automatically skips completed files
+```
+
+### Case 3: Download with disk space monitoring
+
+```{bash}
+# Terminal 1: Start disk monitor
+./disk_monitor.sh downloads/fastq &
+
+# Terminal 2: Start downloads
+./download_tracker.sh SRR_list.txt downloads/fastq
+```
+
+
+### Case 4: Parallel download with resource limits
+
+```{bash}
+# Download 4 files simultaneously, 8 threads each
+TOTAL_CORES=32
+JOBS=4
+THREADS_PER_JOB=8
+
+cat SRR_list.txt | parallel -j $JOBS \
+  fasterq-dump {} \
+    --outdir downloads/fastq \
+    --threads $THREADS_PER_JOB \
+    --split-files \
+    --progress
+
+# Compress in parallel
+find downloads/fastq -name "*.fastq" | parallel -j $TOTAL_CORES gzip {}
+```
+
+
+### Case 5: Download from ENA with verification
+
+```{bash}
+# Download and verify checksums
+./download_verify.sh SRR12345678 downloads/fastq
+
+# Check for failures
+cat checksum_failures.txt
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Problem: "Network error" or timeout
+**Solution:**
+
+```{bash}
+# Use prefetch method (more robust)
+./download_data.sh sra-prefetch -i SRR_list.txt
+
+# Or try ENA instead
+./download_data.sh ena -i SRR_list.txt
+```
+
+
+### Problem: "Out of disk space"
+**Solution:**
+
+```{bash}
+# Monitor space before starting
+df -h
+
+# Delete SRA cache (after conversion to FASTQ)
+rm -rf ~/ncbi/public/sra/*
+
+# Or download only what you need
+head -5 SRR_list.txt > subset.txt
+./download_data.sh sra-fast -i subset.txt
+```
+
+
+### Problem: Corrupted files
+**Solution:**
+
+```{bash}
+# Check file integrity
+gzip -t downloads/fastq/*.fastq.gz
+
+# Re-download failed files
+grep "FAILED" download.log | awk '{print $2}' > failed.txt
+./download_data.sh sra-fast -i failed.txt
+```
+
+
+### Problem: Slow download speed
+**Solution:**
+
+```{bash}
+# Try ENA (often faster)
+./download_data.sh ena -i SRR_list.txt
+
+# Or use aspera (if available)
+ascp -QT -l 300m -P33001 \
+  -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh \
+  era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/SRR123/SRR12345678_1.fastq.gz .
+```
+
+### Problem: "SRA accession not found"
+**Solution:**
+
+```{bash}
+# Verify accession exists
+esearch -db sra -query "SRR12345678" | efetch -format docsum
+
+# Check if it's an ENA-only accession
+# Try downloading from ENA instead
+```
+
+---
+
+## 📁 File Organization
+
+Recommended directory structure:
+
+```{bash}
+project/
+├── raw_data/
+│   ├── fastq/              # Downloaded FASTQ files
+│   ├── metadata/           # GEO metadata, sample info
+│   └── logs/               # Download logs
+├── processed/
+│   ├── aligned/            # BAM files
+│   ├── counts/             # Count matrices
+│   └── qc/                 # QC reports
+├── results/
+│   ├── deseq2/             # DESeq2 results
+│   └── enrichment/         # GO enrichment
+└── scripts/                # Analysis scripts
+```
+
+---
+
+## ⚡ Performance Tips
+
+1. **Use SSD for downloads** - Much faster I/O
+2. **Compress immediately** - Save disk space
+3. **Use parallel downloads** - But don't overload the network
+4. **Clean up temp files** - SRA toolkit creates large temp files
+5. **Use local cache** - Configure SRA toolkit cache location
+
+### Configure SRA Toolkit
+
+```{bash}
+# Set cache location
+vdb-config --interactive
+
+# Or edit config file directly
+mkdir -p ~/.ncbi
+cat > ~/.ncbi/user-settings.mkfg << EOF
+/repository/user/main/public/root = "/path/to/large/disk"
+EOF
+```
+
+---
+
+## 🔍 Verification Checklist
+
+After downloading, verify:
+- [ ] All files downloaded (compare with SRR_list.txt)
+- [ ] No empty files (`find . -size 0`)
+- [ ] No corrupted gzip files (`gzip -t *.fastq.gz`)
+- [ ] Paired-end files exist in pairs (R1 and R2)
+- [ ] File sizes reasonable (>100MB for typical RNA-seq)
+- [ ] Check first few reads (`zcat file.fastq.gz | head -n 20`)
+
+---
+
+## 📞 Additional Resources
+
+- **SRA Toolkit Docs**: https://github.com/ncbi/sra-tools/wiki
+- **NCBI Datasets**: https://www.ncbi.nlm.nih.gov/datasets/docs/
+- **ENA**: https://www.ebi.ac.uk/ena/browser/
+- **GEO**: https://www.ncbi.nlm.nih.gov/geo/
+
+---
+
+## 🎯 Best Practice Workflow
+
+```{bash}
+# 1. Get accessions
+./download_data.sh geo-to-srr -g GSE280953
+
+# 2. Test with one sample first
+head -1 SRR_list.txt > test.txt
+./download_data.sh sra-fast -i test.txt
+
+# 3. If successful, download all
+./download_tracker.sh SRR_list.txt downloads/fastq
+
+# 4. Quality check
+./post_download_qc.sh downloads/fastq
+
+# 5. Proceed with analysis
+# (alignment, quantification, etc.)
+```
