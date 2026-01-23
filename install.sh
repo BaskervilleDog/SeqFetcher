@@ -103,13 +103,15 @@ install_seqfetcher() {
     cp -r lib/* "$LIB_DIR/"
     print_success "Installed library files"
     
-    # Update BASE_DIR in installed script
+    # Update BASE_DIR and lib paths in installed script
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS (BSD sed)
-        sed -i '' "s|BASE_DIR=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"|BASE_DIR=\"${LIB_DIR%/*}\"|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
+        sed -i '' "s|BASE_DIR=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"|BASE_DIR=\"${INSTALL_DIR}\"|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
+        sed -i '' "s|\$BASE_DIR/lib/|\$BASE_DIR/seqfetcher_lib/|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
     else
         # Linux (GNU sed)
-        sed -i "s|BASE_DIR=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"|BASE_DIR=\"${LIB_DIR%/*}\"|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
+        sed -i "s|BASE_DIR=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"|BASE_DIR=\"${INSTALL_DIR}\"|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
+        sed -i "s|\$BASE_DIR/lib/|\$BASE_DIR/seqfetcher_lib/|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
     fi
     print_success "Updated script paths"
 }
