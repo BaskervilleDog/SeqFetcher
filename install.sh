@@ -93,27 +93,34 @@ install_seqfetcher() {
     # Create installation directory
     mkdir -p "$INSTALL_DIR"
     
-    # Copy main script
-    cp seqfetcher.sh "${INSTALL_DIR}/${SCRIPT_NAME}"
+    # Create a temporary modified version of the script
+    print_info "Preparing installation files..."
+    
+    # Copy and modify the main script
+    cp seqfetcher.sh "${INSTALL_DIR}/${SCRIPT_NAME}.tmp"
+    
+    # Replace the BASE_DIR line and source paths
+    awk '
+    /^BASE_DIR=/ {
+        print "BASE_DIR=\"'"${INSTALL_DIR}"'\""
+        next
+    }
+    {
+        gsub(/\$BASE_DIR\/lib\//, "$BASE_DIR/seqfetcher_lib/")
+        print
+    }
+    ' seqfetcher.sh > "${INSTALL_DIR}/${SCRIPT_NAME}.tmp"
+    
+    # Move the temp file to final location
+    mv "${INSTALL_DIR}/${SCRIPT_NAME}.tmp" "${INSTALL_DIR}/${SCRIPT_NAME}"
     chmod +x "${INSTALL_DIR}/${SCRIPT_NAME}"
     print_success "Installed main script"
     
     # Copy library files
+    rm -rf "$LIB_DIR"  # Remove old version if exists
     mkdir -p "$LIB_DIR"
     cp -r lib/* "$LIB_DIR/"
     print_success "Installed library files"
-    
-    # Update BASE_DIR and lib paths in installed script
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS (BSD sed)
-        sed -i '' "s|BASE_DIR=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"|BASE_DIR=\"${INSTALL_DIR}\"|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
-        sed -i '' "s|\$BASE_DIR/lib/|\$BASE_DIR/seqfetcher_lib/|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
-    else
-        # Linux (GNU sed)
-        sed -i "s|BASE_DIR=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"|BASE_DIR=\"${INSTALL_DIR}\"|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
-        sed -i "s|\$BASE_DIR/lib/|\$BASE_DIR/seqfetcher_lib/|g" "${INSTALL_DIR}/${SCRIPT_NAME}"
-    fi
-    print_success "Updated script paths"
 }
 
 # Check if directory is in PATH
@@ -164,9 +171,33 @@ verify_installation() {
     
     if [[ -d "$LIB_DIR" ]]; then
         print_success "Library files found"
+        
+        # Check that library files exist
+        local lib_files=(logging.sh validation.sh ncbi_search.sh ncbi_download.sh sra_download.sh ena_download.sh geo_download.sh ensembl_download.sh)
+        local missing_libs=()
+        
+        for lib_file in "${lib_files[@]}"; do
+            if [[ ! -f "$LIB_DIR/$lib_file" ]]; then
+                missing_libs+=("$lib_file")
+            fi
+        done
+        
+        if [[ ${#missing_libs[@]} -gt 0 ]]; then
+            print_warning "Some library files are missing:"
+            for lib in "${missing_libs[@]}"; do
+                echo "  - $lib"
+            done
+        fi
     else
         print_error "Library files missing"
         exit 1
+    fi
+    
+    # Check that the script has correct paths
+    if grep -q "seqfetcher_lib" "${INSTALL_DIR}/${SCRIPT_NAME}"; then
+        print_success "Library paths correctly updated"
+    else
+        print_warning "Library paths may not be correct"
     fi
     
     # Try to run help
@@ -196,6 +227,7 @@ main() {
     print_success "Installation complete!"
     echo ""
     print_info "Installed to: ${INSTALL_DIR}/${SCRIPT_NAME}"
+    print_info "Library files: ${LIB_DIR}"
     
     # Check PATH and provide instructions if needed
     if ! check_path; then
