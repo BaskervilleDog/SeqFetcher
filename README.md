@@ -70,7 +70,7 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/seqfetcher.git
+git clone https://github.com/BaskervilleDog/seqfetcher.git
 cd seqfetcher
 
 # Run installation
@@ -650,7 +650,7 @@ If you use SeqFetcher in your research:
 
 ```
 SeqFetcher: A unified CLI for genomic data retrieval
-GitHub: https://github.com/yourusername/seqfetcher
+GitHub: https://github.com/BaskervilleDog/seqfetcher
 ```
 
 ---
@@ -674,8 +674,8 @@ Contributions welcome! Please:
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/seqfetcher/issues)
-- **Documentation**: [Wiki](https://github.com/yourusername/seqfetcher/wiki)
+- **Issues**: [GitHub Issues](https://github.com/BaskervilleDog/seqfetcher/issues)
+- **Documentation**: [Wiki](https://github.com/BaskervilleDog/seqfetcher/wiki)
 
 ---
 
