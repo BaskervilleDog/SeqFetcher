@@ -1,8 +1,3 @@
----
-title: "seqfetcher"
-output: github_document
----
-
 # SeqFetcher
 
 A unified command-line tool for searching and downloading genomic data from multiple databases including NCBI, ENA, GEO, and Ensembl.
