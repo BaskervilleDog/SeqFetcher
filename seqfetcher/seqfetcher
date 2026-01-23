@@ -79,94 +79,261 @@ PROTEOME_TYPE="pep"
 # Help
 #==============================================================
 show_help() {
-    cat <<EOF
-SeqFetcher — Unified Sequence Retrieval 
+    cat <<'EOF'
+╔════════════════════════════════════════════════════════════════════════════╗
+║                            SeqFetcher v1.0                                 ║
+║              Unified Sequence Retrieval from Multiple Databases            ║
+╚════════════════════════════════════════════════════════════════════════════╝
 
+USAGE
+    seqfetcher <command> [options]
 
-  seqfetcher search --organism "ORGANISM" [OPTIONS]
-  seqfetcher download --accession ACCESSION [OPTIONS]
-  seqfetcher download --accession-file FILE [OPTIONS]
-  seqfetcher download --gene-id GENE_ID[,GENE_ID,...] [OPTIONS]
-  seqfetcher download --gene-file FILE [OPTIONS]
-  seqfetcher download --geo GSEXXXXX [OPTIONS]
-  seqfetcher geo-srr --geo GSEXXXXX [OPTIONS]
+COMMANDS
+    search        Search for genome assemblies in NCBI
+    download      Download sequences from various databases
+    geo-srr       Extract SRA run accessions from GEO series
 
-Commands:
-  search        Search for genome assemblies in NCBI
-  download      Download assemblies or genes by accession or gene ID
-  geo-srr       Extract SRR accessions from GEO series
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Download Options:
-  --outdir DIR           Output directory (default: downloads)
-  --jobs, -j NUMBER      Number of parallel downloads (default: 4)
-  
-  Assembly downloads:
-    --accession ACC      Single assembly accession
-    --accession-file F   File with assembly accessions
-  
-  Gene downloads:
-    --gene-id ID[,ID]    Gene ID(s) separated by commas
-    --gene-file FILE     File with gene IDs
-  
-  SRA downloads:
-    --sra-method METHOD  Download method: fasterq, prefetch, parallel, ena
-    --sra-accession ACC  Single SRA accession
-    --sra-accession-file File with SRA accessions
-  
-  GEO downloads:
-    --geo GSEXXXXX       Download GEO supplementary files
+SEARCH COMMAND
 
-  Ensembl / transcriptome / proteome:
-    --ensembl-fasta        Download FASTA from Ensembl FTP
-      --species NAME
-      --type cdna|cds|dna|ncrna|pep
-      --release NUM
+    Search for assemblies and extract gene information from NCBI.
 
-    --transcriptome        Download transcriptome
-      --assembly ACC
-      --species NAME
-      --source ncbi|ensembl|auto
-      --type cdna|cds|ncrna
+    seqfetcher search --organism "ORGANISM_NAME" [options]
 
-    --proteome             Download proteome
-      --assembly ACC
-      --species NAME
-      --source ncbi|ensembl|auto
-      --type pep 
+    Options:
+      --organism "NAME"      Organism name (required)
+      --outdir DIR           Output directory (default: downloads)
+      --output FILE          Custom output filename
+      --interactive, -i      Interactive mode - select assemblies to download
+      --extract-genes        Extract gene IDs from reference genome
 
-Search Options:
-  --organism "NAME"      Organism name to search
-  --interactive, -i      Prompt for selection
-  --extract-genes        Extract gene IDs from reference genome
+    Examples:
+      # Basic search
+      seqfetcher search --organism "Escherichia coli"
 
-GEO-SRR Options:
-  --geo GSEXXXXX         GEO series accession
-  --out FILE             Output file for SRR list (default: SRR_list.txt)
+      # Search and save to custom directory
+      seqfetcher search --organism "Homo sapiens" --outdir human_data
 
-General:
-  --help, -h             Show this help message
+      # Interactive mode - choose which assemblies to download
+      seqfetcher search --organism "Saccharomyces cerevisiae" --interactive
 
-Examples:
-  # Search for assemblies
-  seqfetcher search --organism "Escherichia coli"
-  
-  # Download assembly
-  seqfetcher download --accession GCF_000005845.2
-  
-  # Download GEO supplementary files
-  seqfetcher download --geo GSE280953
-  
-  # Extract SRR list from GEO
-  seqfetcher geo-srr --geo GSE280953 --out my_runs.txt
-  
-  # Download SRA data using extracted list
-  seqfetcher download --sra-method fasterq --sra-accession-file my_runs.txt
-  
-  # Complete GEO workflow
-  seqfetcher download --geo GSE280953
-  seqfetcher geo-srr --geo GSE280953 --out runs.txt
-  seqfetcher download --sra-method fasterq --sra-accession-file runs.txt
+      # Extract all gene IDs from reference genome
+      seqfetcher search --organism "Drosophila melanogaster" --extract-genes
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DOWNLOAD COMMAND
+
+    Download assemblies, genes, transcriptomes, proteomes, or sequencing data.
+
+    seqfetcher download [type-specific options]
+
+    Common Options:
+      --outdir DIR           Output directory (default: downloads)
+      --jobs, -j NUMBER      Parallel downloads (default: 4)
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ ASSEMBLY DOWNLOADS                                                      │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --accession ACC        Single assembly accession
+      --accession-file FILE  File with one accession per line
+
+      Examples:
+        # Download single assembly
+        seqfetcher download --accession GCF_000005845.2
+
+        # Download multiple assemblies in parallel
+        seqfetcher download --accession-file assemblies.txt --jobs 8
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ GENE DOWNLOADS                                                          │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --gene-id ID[,ID,...]  Comma-separated gene IDs
+      --gene-file FILE       File with one gene ID per line
+
+      Examples:
+        # Download single gene
+        seqfetcher download --gene-id 12345
+
+        # Download multiple genes
+        seqfetcher download --gene-id 12345,67890,11111
+
+        # Download from file
+        seqfetcher download --gene-file my_genes.txt --jobs 6
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ SRA DOWNLOADS (Sequencing Reads)                                        │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --sra-method METHOD         Download method (required)
+          fasterq   - SRA Toolkit fasterq-dump
+          prefetch  - SRA Toolkit prefetch
+          parallel  - Parallel-fastq-dump
+          ena       - European Nucleotide Archive
+
+      --sra-accession ACC         Single SRA accession (SRR/ERR/DRR)
+      --sra-accession-file FILE   File with accessions
+
+      Examples:
+        # Download single run with fasterq-dump
+        seqfetcher download --sra-method fasterq --sra-accession SRR12345678
+
+        # Download multiple runs from ENA
+        seqfetcher download --sra-method ena --sra-accession-file srr_list.txt
+
+        # Fast parallel download
+        seqfetcher download --sra-method parallel --sra-accession-file runs.txt --jobs 4
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ GEO DOWNLOADS (Gene Expression Omnibus)                                 │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --geo GSEXXXXX         GEO series accession
+
+      Examples:
+        # Download supplementary files from GEO series
+        seqfetcher download --geo GSE280953
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ ENSEMBL FASTA DOWNLOADS                                                 │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --ensembl-fasta            Enable Ensembl download
+      --species NAME             Species name (required)
+      --type TYPE                Sequence type (required)
+          cdna   - cDNA sequences
+          cds    - Coding sequences
+          dna    - Genomic DNA
+          ncrna  - Non-coding RNA
+          pep    - Peptide sequences
+      --release NUMBER           Ensembl release (optional, uses latest)
+
+      Examples:
+        # Download human cDNA sequences
+        seqfetcher download --ensembl-fasta --species homo_sapiens --type cdna
+
+        # Download mouse proteins from specific release
+        seqfetcher download --ensembl-fasta --species mus_musculus \
+            --type pep --release 110
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ TRANSCRIPTOME DOWNLOADS                                                 │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --transcriptome            Enable transcriptome download
+      --assembly ACC             Assembly accession (GCF/GCA)
+      --species NAME             Species name
+      --source SOURCE            Data source (default: ncbi)
+          ncbi     - NCBI RefSeq
+          ensembl  - Ensembl
+          auto     - Try both
+      --type TYPE                Transcript type (default: cdna)
+          cdna     - cDNA sequences
+          cds      - Coding sequences
+          ncrna    - Non-coding RNA
+
+      Examples:
+        # Download from assembly
+        seqfetcher download --transcriptome --assembly GCF_000001405.40
+
+        # Download from species with auto-detection
+        seqfetcher download --transcriptome --species homo_sapiens --source auto
+
+        # Download specific type
+        seqfetcher download --transcriptome --species mus_musculus \
+            --type cds --source ensembl
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ PROTEOME DOWNLOADS                                                      │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --proteome                 Enable proteome download
+      --assembly ACC             Assembly accession (GCF/GCA)
+      --species NAME             Species name
+      --source SOURCE            Data source (default: ncbi)
+          ncbi     - NCBI RefSeq
+          ensembl  - Ensembl
+          auto     - Try both
+      --type TYPE                Protein type (default: pep)
+
+      Examples:
+        # Download from assembly
+        seqfetcher download --proteome --assembly GCF_000001405.40
+
+        # Download from species
+        seqfetcher download --proteome --species drosophila_melanogaster
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GEO-SRR COMMAND
+
+    Extract SRA run accessions (SRR) from a GEO series for downstream analysis.
+
+    seqfetcher geo-srr --geo GSEXXXXX [options]
+
+    Options:
+      --geo GSEXXXXX         GEO series accession (required)
+      --out FILE             Output filename (default: SRR_list.txt)
+      --outdir DIR           Output directory (default: downloads)
+
+    Examples:
+      # Extract SRR list to default file
+      seqfetcher geo-srr --geo GSE280953
+
+      # Extract to custom file
+      seqfetcher geo-srr --geo GSE280953 --out my_runs.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COMMON WORKFLOWS
+
+    Workflow 1: Complete GEO Analysis Pipeline
+    ───────────────────────────────────────────
+      # Step 1: Download supplementary files
+      seqfetcher download --geo GSE280953
+
+      # Step 2: Extract SRA run accessions
+      seqfetcher geo-srr --geo GSE280953 --out runs.txt
+
+      # Step 3: Download sequencing data
+      seqfetcher download --sra-method fasterq --sra-accession-file runs.txt
+
+    Workflow 2: Search and Download Assembly
+    ─────────────────────────────────────────
+      # Step 1: Search for organism
+      seqfetcher search --organism "Bacillus subtilis" --output assemblies.tsv
+
+      # Step 2: Download assemblies from results
+      seqfetcher download --accession-file assemblies.tsv
+
+    Workflow 3: Extract and Download Genes
+    ───────────────────────────────────────
+      # Step 1: Extract gene IDs from reference
+      seqfetcher search --organism "Mus musculus" --extract-genes
+
+      # Step 2: Download extracted genes
+      seqfetcher download --gene-file downloads/gene_ids.txt
+
+    Workflow 4: Multi-Source Transcriptome Download
+    ───────────────────────────────────────────────
+      # Try NCBI first, then Ensembl
+      seqfetcher download --transcriptome --species homo_sapiens --source auto
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GENERAL OPTIONS
+    --help, -h             Show this help message
+
+NOTES
+    • All downloads use parallel processing where applicable
+    • Temporary files are automatically cleaned up
+    • Progress is logged for all operations
+    • Failed downloads are reported with details
+
+For more information and updates, visit the project repository.
 EOF
 }
 
