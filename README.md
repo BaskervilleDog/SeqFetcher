@@ -90,7 +90,7 @@ seqfetcher --help
 ### Search for genomes
 
 ```bash
-seqfetcher search --organism "Escherichia coli"
+seqfetcher search --organism "Saccharomyces cerevisiae"
 ```
 
 ### Download a reference genome
