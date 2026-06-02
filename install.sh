@@ -10,8 +10,8 @@ NC='\033[0m' # No Color
 
 # Installation settings
 INSTALL_DIR="${HOME}/.local/bin"
+APP_DIR="${HOME}/.local/share/seqfetcher"
 SCRIPT_NAME="seqfetcher"
-LIB_DIR="${INSTALL_DIR}/seqfetcher_lib"
 
 # Helper functions
 print_success() {
@@ -88,39 +88,34 @@ check_dependencies() {
 
 # Install SeqFetcher
 install_seqfetcher() {
-    print_info "Installing SeqFetcher to: ${INSTALL_DIR}"
-    
-    # Create installation directory
+    local APP_DIR="${HOME}/.local/share/seqfetcher"
+
+    print_info "Installing SeqFetcher..."
+
+    mkdir -p "$APP_DIR"
     mkdir -p "$INSTALL_DIR"
-    
-    # Create a temporary modified version of the script
-    print_info "Preparing installation files..."
-    
-    # Copy and modify the main script
-    cp seqfetcher.sh "${INSTALL_DIR}/${SCRIPT_NAME}.tmp"
-    
-    # Replace the BASE_DIR line and source paths
-    awk '
-    /^BASE_DIR=/ {
-        print "BASE_DIR=\"'"${INSTALL_DIR}"'\""
-        next
-    }
-    {
-        gsub(/\$BASE_DIR\/lib\//, "$BASE_DIR/seqfetcher_lib/")
-        print
-    }
-    ' seqfetcher.sh > "${INSTALL_DIR}/${SCRIPT_NAME}.tmp"
-    
-    # Move the temp file to final location
-    mv "${INSTALL_DIR}/${SCRIPT_NAME}.tmp" "${INSTALL_DIR}/${SCRIPT_NAME}"
+
+    # Clean previous installation
+    rm -rf "$APP_DIR"
+
+    # Copy application
+    mkdir -p "$APP_DIR"
+    cp seqfetcher.sh "$APP_DIR/"
+    cp -r lib "$APP_DIR/"
+
+    chmod +x "$APP_DIR/seqfetcher.sh"
+
+    print_success "Application files installed"
+
+    # Create launcher
+    cat > "${INSTALL_DIR}/${SCRIPT_NAME}" <<EOF
+#!/usr/bin/env bash
+exec "${APP_DIR}/seqfetcher.sh" "\$@"
+EOF
+
     chmod +x "${INSTALL_DIR}/${SCRIPT_NAME}"
-    print_success "Installed main script"
-    
-    # Copy library files
-    rm -rf "$LIB_DIR"  # Remove old version if exists
-    mkdir -p "$LIB_DIR"
-    cp -r lib/* "$LIB_DIR/"
-    print_success "Installed library files"
+
+    print_success "Launcher installed"
 }
 
 # Check if directory is in PATH
@@ -160,52 +155,34 @@ show_path_instructions() {
 
 # Verify installation
 verify_installation() {
+    local APP_DIR="${HOME}/.local/share/seqfetcher"
+
     print_info "Verifying installation..."
-    
-    if [[ -x "${INSTALL_DIR}/${SCRIPT_NAME}" ]]; then
-        print_success "SeqFetcher executable found"
+
+    [[ -x "${INSTALL_DIR}/${SCRIPT_NAME}" ]] \
+        || { print_error "Launcher missing"; exit 1; }
+
+    [[ -f "${APP_DIR}/seqfetcher.sh" ]] \
+        || { print_error "Main script missing"; exit 1; }
+
+    [[ -d "${APP_DIR}/lib" ]] \
+        || { print_error "Library directory missing"; exit 1; }
+
+    if "${INSTALL_DIR}/${SCRIPT_NAME}" --help >/dev/null 2>&1; then
+        print_success "Installation verified"
     else
-        print_error "Installation verification failed"
+        print_error "Runtime verification failed"
         exit 1
     fi
-    
-    if [[ -d "$LIB_DIR" ]]; then
-        print_success "Library files found"
-        
-        # Check that library files exist
-        local lib_files=(logging.sh validation.sh ncbi_search.sh ncbi_download.sh sra_download.sh ena_download.sh geo_download.sh ensembl_download.sh)
-        local missing_libs=()
-        
-        for lib_file in "${lib_files[@]}"; do
-            if [[ ! -f "$LIB_DIR/$lib_file" ]]; then
-                missing_libs+=("$lib_file")
-            fi
-        done
-        
-        if [[ ${#missing_libs[@]} -gt 0 ]]; then
-            print_warning "Some library files are missing:"
-            for lib in "${missing_libs[@]}"; do
-                echo "  - $lib"
-            done
-        fi
-    else
-        print_error "Library files missing"
-        exit 1
-    fi
-    
-    # Check that the script has correct paths
-    if grep -q "seqfetcher_lib" "${INSTALL_DIR}/${SCRIPT_NAME}"; then
-        print_success "Library paths correctly updated"
-    else
-        print_warning "Library paths may not be correct"
-    fi
-    
-    # Try to run help
-    if "${INSTALL_DIR}/${SCRIPT_NAME}" --help &> /dev/null; then
-        print_success "SeqFetcher can execute successfully"
-    else
-        print_warning "SeqFetcher may have runtime issues"
-    fi
+}
+
+uninstall_seqfetcher() {
+    print_info "Removing SeqFetcher..."
+
+    rm -f "${INSTALL_DIR}/${SCRIPT_NAME}"
+    rm -rf "${APP_DIR}"
+
+    print_success "SeqFetcher uninstalled"
 }
 
 # Main installation

@@ -24,7 +24,7 @@ search_metadata_by_organism() {
     tmp_tsv=$(mktemp) || { rm -f "$tmp_json"; return 1; }
     
     # Fetch taxonomy data with error handling
-    if ! datasets summary taxonomy taxon "$organism" > "$tmp_json" 2>&1; then
+    if ! datasets summary taxonomy taxon "$organism" > "$tmp_json"; then
         log_error "Failed to fetch taxonomy data from NCBI"
         rm -f "$tmp_json" "$tmp_tsv"
         return 1
