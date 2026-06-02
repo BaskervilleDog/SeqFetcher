@@ -48,6 +48,7 @@ COMMANDS
     search        Search for genome assemblies in NCBI
     download      Download sequences from various databases
     geo-srr       Extract SRA run accessions from GEO series
+    bp-srr        Extract SRA run accessions from BioProjects
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -244,6 +245,26 @@ GEO-SRR COMMAND
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+BP-SRR COMMAND
+
+    Extract SRA run accessions (SRR) from a BioProject accession for downstream analysis.
+
+    seqfetcher bp-srr --bioproject PRJNAXXXXXX [options]
+
+    Options:
+      --bioproject PRJNAXXXXXX         BioProject accession (required)
+      --out FILE             Output filename (default: SRR_list.txt)
+      --outdir DIR           Output directory (default: downloads)
+
+    Examples:
+      # Extract SRR list to default file
+      seqfetcher bp-srr --bioproject PRJNA175224
+
+      # Extract to custom file
+      seqfetcher bp-srr --bioproject PRJNA175224 --out my_runs.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 COMMON WORKFLOWS
 
     Workflow 1: Complete GEO Analysis Pipeline
@@ -321,6 +342,10 @@ main() {
         geo-srr)
             shift
             run_geo_srr "$@"
+            ;;
+        bp-srr)
+            shift
+            run_bioproject_srr "$@"
             ;;
         *)
             echo "Unknown command: $cmd" >&2

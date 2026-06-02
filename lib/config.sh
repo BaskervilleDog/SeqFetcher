@@ -99,3 +99,9 @@ PROTEOME_ASSEMBLY=""
 PROTEOME_SPECIES=""
 PROTEOME_SOURCE="ncbi"
 PROTEOME_TYPE="pep"
+
+# =====================================
+# BioProject
+# =====================================
+
+BIOPROJECT_ACCESSION=""

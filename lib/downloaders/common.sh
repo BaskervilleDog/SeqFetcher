@@ -16,3 +16,16 @@ cleanup_temp() {
         rm -rf "$TEMP_DIR"
     fi
 }
+
+is_help() {
+    [[ "$1" == "--help" || "$1" == "-h" || "$1" == "help" ]]
+}
+
+check_command() {
+    if ! command -v "$1" &> /dev/null; then
+        log_error "Required command not found: $1"
+        log_error "Please install $1 and try again"
+        return 1
+    fi
+    return 0
+}
