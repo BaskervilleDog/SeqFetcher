@@ -76,3 +76,56 @@ load 'test_helper'
     [ "$status" -eq 0 ]
     [[ "$output" == *"Using cached ortholog FASTA (2 sequences)"* ]]
 }
+
+# --- _is_near_cap ----------------------------------------------------------
+# Regression coverage: reported live as `download --ortholog NP_001416352.1`
+# warning "Dataset cap reached: 2108 sequences" for a genuinely uncapped
+# 2108-sequence result, because the original check was `count -ge 499`
+# (matches "499 or more" forever) instead of a window around the actual
+# observed cap value.
+
+@test "_is_near_cap flags counts inside the observed-cap window" {
+    downloaders_ortholog_download::_is_near_cap 499
+    downloaders_ortholog_download::_is_near_cap 495
+    downloaders_ortholog_download::_is_near_cap 503
+}
+
+@test "_is_near_cap does not flag a small, unrelated result" {
+    ! downloaders_ortholog_download::_is_near_cap 12
+}
+
+@test "_is_near_cap does not flag a large, genuinely uncapped result" {
+    ! downloaders_ortholog_download::_is_near_cap 2108
+}
+
+# --- download_orthologs_batch summary counters -----------------------------
+# Regression coverage for a bash gotcha: `((successful++))` is
+# post-increment, so it evaluates to the value *before* incrementing. Going
+# 0->1 is therefore exit status 1 (arithmetic false), which used to fire
+# the `|| ((failed++))` branch right alongside a genuine success - reported
+# live as "Successful: 1 / Failed: 1" for one accession that fully
+# succeeded. download_ortholog is stubbed here so this only exercises the
+# counting logic, not any network call.
+
+@test "download_orthologs_batch counts a success without also counting it as a failure" {
+    downloaders_ortholog_download::download_ortholog() { return 0; }
+
+    local accfile="$BATS_TEST_TMPDIR/accs_ok.txt"
+    echo "NP_000001.1" > "$accfile"
+
+    run downloaders_ortholog_download::download_orthologs_batch "$accfile" "$BATS_TEST_TMPDIR/out" 1
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Successful: 1"* ]]
+    [[ "$output" != *"Failed:"* ]]
+}
+
+@test "download_orthologs_batch counts a failure without also counting it as a success" {
+    downloaders_ortholog_download::download_ortholog() { return 1; }
+
+    local accfile="$BATS_TEST_TMPDIR/accs_fail.txt"
+    echo "NP_000001.1" > "$accfile"
+
+    run downloaders_ortholog_download::download_orthologs_batch "$accfile" "$BATS_TEST_TMPDIR/out" 1
+    [[ "$output" == *"Successful: 0"* ]]
+    [[ "$output" == *"Failed: 1"* ]]
+}

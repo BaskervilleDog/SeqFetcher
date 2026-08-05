@@ -237,8 +237,8 @@ DOWNLOAD COMMAND
       Each is resolved to a Gene ID via NCBI Entrez, then all known
       orthologs for that gene are downloaded as a deduplicated protein
       FASTA. Coverage is vertebrates and insects only (NCBI Datasets
-      limitation); results above ~499 sequences are a truncated, not
-      complete, set.
+      limitation); a raw result landing right around ~499 records may be
+      truncated - a warning is printed when that happens.
 
       Examples:
         # Single accession
