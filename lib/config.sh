@@ -105,3 +105,16 @@ PROTEOME_TYPE="pep"
 # =====================================
 
 BIOPROJECT_ACCESSION=""
+
+# =====================================
+# Ortholog downloads
+# =====================================
+
+ORTHOLOG=""
+ORTHOLOG_USER=false
+ORTHOLOG_FILE=""
+ORTHOLOG_FILE_USER=false
+
+# Optional. Raises the NCBI Entrez rate limit from 3 to 10 req/s.
+# Register free at: https://www.ncbi.nlm.nih.gov/account/
+NCBI_API_KEY="${NCBI_API_KEY:-}"

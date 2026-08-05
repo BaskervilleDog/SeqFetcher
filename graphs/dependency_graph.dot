@@ -18,6 +18,8 @@ digraph dependency_graph {
   "lib.downloaders.geo_download" [label="lib.downloaders.geo_download", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.downloaders.ncbi_download" [label="lib.downloaders.ncbi_download", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.downloaders.ncbi_search" [label="lib.downloaders.ncbi_search", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
+  "lib.downloaders.ortholog" [label="lib.downloaders.ortholog", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
+  "lib.downloaders.ortholog_download" [label="lib.downloaders.ortholog_download", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.downloaders.proteome" [label="lib.downloaders.proteome", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.downloaders.sra" [label="lib.downloaders.sra", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.downloaders.sra_download" [label="lib.downloaders.sra_download", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
@@ -32,6 +34,7 @@ digraph dependency_graph {
   "lib.validators.ensembl" [label="lib.validators.ensembl", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.validators.gene" [label="lib.validators.gene", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.validators.geo" [label="lib.validators.geo", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
+  "lib.validators.ortholog" [label="lib.validators.ortholog", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.validators.proteome" [label="lib.validators.proteome", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.validators.search" [label="lib.validators.search", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.validators.sra" [label="lib.validators.sra", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
@@ -39,15 +42,20 @@ digraph dependency_graph {
   "seqfetcher" [label="seqfetcher", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "scripts.check_deps" [label="scripts.check_deps", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "fasterq" [label="fasterq", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "gene_id" [label="gene_id", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "index" [label="index", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ncrna" [label="ncrna", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "bp-srr" [label="bp-srr", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ena" [label="ena", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "XM_" [label="XM_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "download" [label="download", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "downloaders_sra_download" [label="downloaders_sra_download", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "nl" [label="nl", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "nucleotide" [label="nucleotide", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "sra" [label="sra", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "WP_" [label="WP_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "policy" [label="policy", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "XP_" [label="XP_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ERP" [label="ERP", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ERR" [label="ERR", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ERS" [label="ERS", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -63,14 +71,18 @@ digraph dependency_graph {
   "dna" [label="dna", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "cdna" [label="cdna", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "DB" [label="DB", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "NM_" [label="NM_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "transcriptome" [label="transcriptome", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "unzip" [label="unzip", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "log_warn" [label="log_warn", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "search" [label="search", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "NP_" [label="NP_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "geo" [label="geo", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "protein" [label="protein", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "parallel-fastq-dump" [label="parallel-fastq-dump", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "gene" [label="gene", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "wget" [label="wget", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "NG_" [label="NG_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "gzip" [label="gzip", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "fasterq-dump" [label="fasterq-dump", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "python3" [label="python3", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -79,6 +91,7 @@ digraph dependency_graph {
   "pep" [label="pep", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "cds" [label="cds", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "curl" [label="curl", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "ortholog" [label="ortholog", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "DRX" [label="DRX", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "DRP" [label="DRP", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "DRS" [label="DRS", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -95,6 +108,7 @@ digraph dependency_graph {
   "lib.commands.download" -> "ensembl-fasta";
   "lib.commands.download" -> "gene";
   "lib.commands.download" -> "geo";
+  "lib.commands.download" -> "ortholog";
   "lib.commands.download" -> "proteome";
   "lib.commands.download" -> "sra";
   "lib.commands.download" -> "transcriptome";
@@ -135,6 +149,18 @@ digraph dependency_graph {
   "lib.downloaders.ncbi_search" -> "print";
   "lib.downloaders.ncbi_search" -> "split";
   "lib.downloaders.ncbi_search" -> "unzip";
+  "lib.downloaders.ortholog_download" -> "NG_";
+  "lib.downloaders.ortholog_download" -> "NM_";
+  "lib.downloaders.ortholog_download" -> "NP_";
+  "lib.downloaders.ortholog_download" -> "WP_";
+  "lib.downloaders.ortholog_download" -> "XM_";
+  "lib.downloaders.ortholog_download" -> "XP_";
+  "lib.downloaders.ortholog_download" -> "datasets";
+  "lib.downloaders.ortholog_download" -> "gene_id";
+  "lib.downloaders.ortholog_download" -> "jq";
+  "lib.downloaders.ortholog_download" -> "nucleotide";
+  "lib.downloaders.ortholog_download" -> "protein";
+  "lib.downloaders.ortholog_download" -> "unzip";
   "lib.downloaders.sra" -> "ena";
   "lib.downloaders.sra" -> "fasterq";
   "lib.downloaders.sra" -> "parallel";
@@ -151,6 +177,7 @@ digraph dependency_graph {
   "lib.validators.download" -> "ensembl-fasta";
   "lib.validators.download" -> "gene";
   "lib.validators.download" -> "geo";
+  "lib.validators.download" -> "ortholog";
   "lib.validators.download" -> "proteome";
   "lib.validators.download" -> "sra";
   "lib.validators.download" -> "transcriptome";
@@ -172,6 +199,8 @@ digraph dependency_graph {
   "seqfetcher" -> "lib.downloaders.geo_download";
   "seqfetcher" -> "lib.downloaders.ncbi_download";
   "seqfetcher" -> "lib.downloaders.ncbi_search";
+  "seqfetcher" -> "lib.downloaders.ortholog";
+  "seqfetcher" -> "lib.downloaders.ortholog_download";
   "seqfetcher" -> "lib.downloaders.proteome";
   "seqfetcher" -> "lib.downloaders.sra";
   "seqfetcher" -> "lib.downloaders.sra_download";
@@ -184,6 +213,7 @@ digraph dependency_graph {
   "seqfetcher" -> "lib.validators.ensembl";
   "seqfetcher" -> "lib.validators.gene";
   "seqfetcher" -> "lib.validators.geo";
+  "seqfetcher" -> "lib.validators.ortholog";
   "seqfetcher" -> "lib.validators.proteome";
   "seqfetcher" -> "lib.validators.search";
   "seqfetcher" -> "lib.validators.sra";
@@ -196,6 +226,7 @@ digraph dependency_graph {
   "lib.downloaders.ncbi_download" -> "datasets" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ncbi_search" -> "jq" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ncbi_search" -> "parallel" [style=dashed, label="checks for", fontsize=9];
+  "lib.downloaders.ortholog_download" -> "jq" [style=dashed, label="checks for", fontsize=9];
   "lib.validation" -> "datasets" [style=dashed, label="checks for", fontsize=9];
   "lib.validation" -> "jq" [style=dashed, label="checks for", fontsize=9];
 }

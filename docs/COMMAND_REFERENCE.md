@@ -14,6 +14,7 @@ Full usage guide for every SeqFetcher command. For installation and a
 - [Downloading Transcriptomes](#downloading-transcriptomes)
 - [Downloading Proteomes](#downloading-proteomes)
 - [Downloading from Ensembl](#downloading-from-ensembl)
+- [Downloading Orthologs](#downloading-orthologs)
 - [Common Workflows](#common-workflows)
 - [File Formats](#file-formats)
 - [Full Option Reference](#full-option-reference)
@@ -45,7 +46,8 @@ downloads/
 ├── metadata/<GSE>/                      download --geo (supplementary files)
 ├── transcriptomes/<accession-or-species>/...   download --transcriptome
 ├── proteomes/<accession-or-species>/...        download --proteome
-└── ensembl/<species>/<type>/            download --ensembl-fasta
+├── ensembl/<species>/<type>/            download --ensembl-fasta
+└── orthologs/<accession>/               download --ortholog(-file)
 ```
 
 `--output`/`--out` still take any filename or path you give them as-is
@@ -338,6 +340,58 @@ seqfetcher download --ensembl-fasta \
 
 ---
 
+### Downloading Orthologs
+
+Given a gene (as a protein/nucleotide accession or a numeric Gene ID),
+resolve it to its NCBI Gene ID via Entrez and download every known
+ortholog's protein sequence as one deduplicated FASTA.
+
+```bash
+# By RefSeq protein accession
+seqfetcher download --ortholog NP_001416352.1
+
+# By RefSeq nucleotide accession
+seqfetcher download --ortholog NM_001429423.1
+
+# By numeric Gene ID
+seqfetcher download --ortholog 672
+
+# Multiple accessions/Gene IDs (comma-separated)
+seqfetcher download --ortholog NP_001416352.1,672
+
+# From a file (one per line), 8 in parallel
+seqfetcher download --ortholog-file genes.txt --jobs 8
+```
+
+**Options:**
+- `--ortholog ACC[,ACC,...]` - Accession(s) or Gene ID(s)
+- `--ortholog-file FILE` - File with one accession/Gene ID per line
+- `--jobs, -j NUM` - Parallel accessions (default: 4)
+
+**Accepted formats:**
+- `NP_` / `XP_` / `WP_` - RefSeq protein accessions
+- `NM_` / `XM_` / `NG_` - RefSeq nucleotide accessions
+- Numeric - NCBI Gene IDs
+
+**Output:** `downloads/orthologs/<accession>/orthologs_<gene_id>.fasta`
+
+**Limitations** (inherited from the NCBI Datasets ortholog API, not
+something SeqFetcher can work around):
+- Coverage is vertebrates and insects only - other taxa return 0 orthologs.
+- Results are silently capped around ~499 sequences; SeqFetcher warns
+  loudly when a result hits that cap, since it means the set is truncated,
+  not complete.
+
+**Optional:** set `NCBI_API_KEY` to raise the Entrez rate limit from 3 to
+10 requests/second (register free at
+[ncbi.nlm.nih.gov/account](https://www.ncbi.nlm.nih.gov/account/)):
+
+```bash
+export NCBI_API_KEY=your_key_here
+```
+
+---
+
 ## Common Workflows
 
 ### Workflow 1: Complete GEO Analysis
@@ -452,6 +506,10 @@ seqfetcher download [OPTIONS]
 - `--assembly ACC` - Assembly accession
 - `--species NAME` - Species name
 - `--source SOURCE` - ncbi | ensembl | auto
+
+**Ortholog Options:**
+- `--ortholog ACC[,ACC,...]` - Accession(s) or Gene ID(s)
+- `--ortholog-file FILE` - File with one accession/Gene ID per line
 
 **General Options:**
 - `--outdir DIR` - Output directory

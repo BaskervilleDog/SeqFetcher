@@ -38,6 +38,7 @@ check jq       required "JSON parsing throughout lib/downloaders/ - install: bre
 check parallel required "GNU Parallel, used for concurrent downloads - install: brew install parallel / apt-get install parallel"
 check curl     required "HTTP downloads (GEO, BioProject, Ensembl) - usually pre-installed"
 check python3  required "JSON/XML post-processing in lib/downloaders/geo_download.sh and bioproject_download.sh"
+check unzip    required "extracts .zip archives from 'datasets download' - assembly/gene/transcriptome/proteome/ortholog downloads"
 check awk      required "field parsing, used throughout lib/"
 check sed      required "text substitution, used throughout lib/"
 check grep     required "text search, used throughout lib/"

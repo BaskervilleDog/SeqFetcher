@@ -17,13 +17,13 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 📊 **Rich Metadata** - Extract taxonomy and gene information
 ✅ **Robust Validation** - MD5 checksums and file size verification
 🎯 **Multiple Sources** - NCBI, ENA, GEO, Ensembl support
-🧬 **Comprehensive Data** - Assemblies, genes, transcriptomes, proteomes, and sequencing reads
+🧬 **Comprehensive Data** - Assemblies, genes, transcriptomes, proteomes, orthologs, and sequencing reads
 
 ### Supported Data Sources
 
 | Source | Data Types | Features |
 |--------|------------|----------|
-| **NCBI** | Assemblies, genes, SRA reads | Reference genomes, annotations |
+| **NCBI** | Assemblies, genes, SRA reads, orthologs | Reference genomes, annotations |
 | **ENA** | FASTQ files | Direct download, MD5 verification |
 | **GEO** | Supplementary files, SRA links | Expression data, metadata |
 | **Ensembl** | Transcriptomes, proteomes, FASTA | Latest releases, multiple species |
@@ -110,6 +110,12 @@ seqfetcher download --sra-method fasterq --sra-accession-file runs.txt
 
 ```bash
 seqfetcher download --transcriptome --species homo_sapiens --source auto
+```
+
+### Download orthologs for a gene
+
+```bash
+seqfetcher download --ortholog NP_001416352.1
 ```
 
 For every option, every command, common multi-step workflows, and file
