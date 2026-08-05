@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-run_transcriptome_download() {
+downloaders_transcriptome::run_transcriptome_download() {
 
-    prepare_download_environment
+    downloaders_common::prepare_download_environment
 
     export ENSEMBL_TYPE
     export ENSEMBL_RELEASE
 
-    download_transcriptome \
+    downloaders_ensembl_download::download_transcriptome \
         "$TRANSCRIPTOME_ASSEMBLY" \
         "$TRANSCRIPTOME_SPECIES" \
         "$TRANSCRIPTOME_SOURCE" \
         "$TRANSCRIPTOME_TYPE"
 
-    cleanup_temp
+    downloaders_common::cleanup_temp
 }

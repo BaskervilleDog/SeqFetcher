@@ -1,35 +1,35 @@
 #!/usr/bin/env bash
 
-validate_download_inputs() {
+validators_download::validate_download_inputs() {
 
     case "$DOWNLOAD_TYPE" in
 
         assembly)
-            validate_assembly_download
+            validators_assembly::validate_assembly_download
             ;;
 
         gene)
-            validate_gene_download
+            validators_gene::validate_gene_download
             ;;
 
         sra)
-            validate_sra_download
+            validators_sra::validate_sra_download
             ;;
 
         geo)
-            validate_geo_download
+            validators_geo::validate_geo_download
             ;;
 
         ensembl-fasta)
-            validate_ensembl_download
+            validators_ensembl::validate_ensembl_download
             ;;
 
         transcriptome)
-            validate_transcriptome_download
+            validators_transcriptome::validate_transcriptome_download
             ;;
 
         proteome)
-            validate_proteome_download
+            validators_proteome::validate_proteome_download
             ;;
 
         *)

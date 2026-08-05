@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-parse_download_arguments() {
+parsers_download::parse_download_arguments() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --accession)

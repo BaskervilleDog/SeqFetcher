@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-validate_transcriptome_download() {
+validators_transcriptome::validate_transcriptome_download() {
 
     [[ -z "$TRANSCRIPTOME_ASSEMBLY" &&
        -z "$TRANSCRIPTOME_SPECIES" ]] &&
@@ -8,4 +8,6 @@ validate_transcriptome_download() {
         log_error "Transcriptome requires --assembly or --species"
         exit 1
     }
+
+    return 0
 }

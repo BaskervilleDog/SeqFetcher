@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-parse_search_arguments() {
+parsers_search::parse_search_arguments() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --organism) ORGANISM="$2"; shift 2 ;;

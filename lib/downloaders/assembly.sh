@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
-run_assembly_download() {
+downloaders_assembly::run_assembly_download() {
 
-    prepare_download_environment
+    downloaders_common::prepare_download_environment
 
     log_info "Starting assembly download"
 
     if [[ -n "$ACCESSION" ]]; then
 
-        download_assembly \
+        downloaders_ncbi_download::download_assembly \
             "$ACCESSION" \
             "$OUTDIR" \
             false
 
     else
 
-        download_assemblies_parallel \
+        downloaders_ncbi_download::download_assemblies_parallel \
             "$ACCESSION_FILE" \
             "$OUTDIR" \
             "$PARALLEL_JOBS"
 
     fi
 
-    cleanup_temp
+    downloaders_common::cleanup_temp
 }

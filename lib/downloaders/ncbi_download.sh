@@ -4,7 +4,7 @@
 # Download single assembly (basic)
 #==============================================================
 
-download_assembly() {
+downloaders_ncbi_download::download_assembly() {
     local accession="$1"
     local outdir="${2:-downloads}"
     
@@ -51,7 +51,7 @@ download_assembly() {
 # Download multiple assemblies in parallel
 #==============================================================
 
-download_assemblies_parallel() {
+downloaders_ncbi_download::download_assemblies_parallel() {
     local accession_file="$1"
     local outdir="$2"
     local jobs="${3:-4}"
@@ -77,7 +77,7 @@ download_assemblies_parallel() {
         
         echo "[$count/$total] Downloading: $acc"
         
-        download_assembly "$acc" "$outdir" "true" &
+        downloaders_ncbi_download::download_assembly "$acc" "$outdir" "true" &
         pids+=($!)
         
         # Limit parallel jobs
@@ -117,7 +117,7 @@ download_assemblies_parallel() {
 # Download genes in batches
 #==============================================================
 
-download_genes_batches() {
+downloaders_ncbi_download::download_genes_batches() {
     local gene_file="$1"
     local outdir="$2"
     local jobs="${3:-4}"
@@ -236,7 +236,7 @@ download_genes_batches() {
 # Interactive assembly selection
 #==============================================================
 
-download_assemblies_interactive() {
+downloaders_ncbi_download::download_assemblies_interactive() {
     local tsv_file="$1"
     local outdir="$2"
     
@@ -306,13 +306,13 @@ download_assemblies_interactive() {
     log_info "Downloading $acc_count assemblies..."
     echo
     
-    download_assemblies_parallel "$tmp_acc_file" "$outdir" 4
+    downloaders_ncbi_download::download_assemblies_parallel "$tmp_acc_file" "$outdir" 4
     
     rm -f "$tmp_acc_file"
 }
 
 # Export functions for subshells
-export -f download_assembly
-export -f download_assemblies_parallel
-export -f download_genes_batches
-export -f download_assemblies_interactive
+export -f downloaders_ncbi_download::download_assembly
+export -f downloaders_ncbi_download::download_assemblies_parallel
+export -f downloaders_ncbi_download::download_genes_batches
+export -f downloaders_ncbi_download::download_assemblies_interactive

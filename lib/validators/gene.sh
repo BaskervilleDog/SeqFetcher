@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-validate_gene_download() {
+validators_gene::validate_gene_download() {
 
     [[ "$GENE_ID_USER" == false &&
        "$GENE_FILE_USER" == false ]] &&
@@ -15,4 +15,6 @@ validate_gene_download() {
         log_error "Gene file not found: $GENE_FILE"
         exit 1
     }
+
+    return 0
 }

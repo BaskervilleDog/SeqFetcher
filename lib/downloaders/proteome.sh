@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-run_proteome_download() {
+downloaders_proteome::run_proteome_download() {
 
-    prepare_download_environment
+    downloaders_common::prepare_download_environment
 
     export ENSEMBL_TYPE
     export ENSEMBL_RELEASE
 
-    download_proteome \
+    downloaders_ensembl_download::download_proteome \
         "$PROTEOME_ASSEMBLY" \
         "$PROTEOME_SPECIES" \
         "$PROTEOME_SOURCE" \
         "$PROTEOME_TYPE"
 
-    cleanup_temp
+    downloaders_common::cleanup_temp
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-search_metadata_by_organism() {
+downloaders_ncbi_search::search_metadata_by_organism() {
     local organism="$1"
     local output_file="${2:-taxonomy_metadata.tsv}"
     
@@ -113,7 +113,7 @@ search_metadata_by_organism() {
     rm -f "$tmp_json" "$tmp_tsv"
 }
 
-search_assemblies_by_organism() {
+downloaders_ncbi_search::search_assemblies_by_organism() {
     local organism="$1"
     local output_file="${2:-assemblies.tsv}"
     
@@ -242,7 +242,7 @@ search_assemblies_by_organism() {
     rm -f "$tmp_json" "$tmp_tsv"
 }
 
-extract_gene_ids_from_reference() {
+downloaders_ncbi_search::extract_gene_ids_from_reference() {
     local organism="$1"
     local output_file="${2:-gene_ids.txt}"
     local metadata_file="${output_file%.txt}_metadata.tsv"
