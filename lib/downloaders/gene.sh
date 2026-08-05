@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-run_gene_download() {
+downloaders_gene::run_gene_download() {
 
-    prepare_download_environment
+    downloaders_common::prepare_download_environment
 
     if [[ "$GENE_ID_USER" == true ]]; then
 
@@ -20,7 +20,7 @@ run_gene_download() {
 
     fi
 
-    download_genes_batches \
+    downloaders_ncbi_download::download_genes_batches \
         "$input" \
         "$OUTDIR" \
         "$PARALLEL_JOBS"
@@ -28,5 +28,5 @@ run_gene_download() {
     [[ "$GENE_ID_USER" == true ]] &&
         rm -f "$tmp"
 
-    cleanup_temp
+    downloaders_common::cleanup_temp
 }

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-run_sra_download() {
+downloaders_sra::run_sra_download() {
 
-    prepare_download_environment
+    downloaders_common::prepare_download_environment
 
     mkdir -p "$OUTDIR/fastq"
 
@@ -25,19 +25,19 @@ run_sra_download() {
     case "$SRA_METHOD" in
 
         fasterq)
-            download_sra_fasterq "$INPUT_FILE"
+            downloaders_sra_download::download_sra_fasterq "$INPUT_FILE"
             ;;
 
         prefetch)
-            download_sra_prefetch "$INPUT_FILE"
+            downloaders_sra_download::download_sra_prefetch "$INPUT_FILE"
             ;;
 
         parallel)
-            download_parallel_fastq "$INPUT_FILE"
+            downloaders_sra_download::download_parallel_fastq "$INPUT_FILE"
             ;;
 
         ena)
-            download_ena "$INPUT_FILE"
+            downloaders_ena_download::download_ena "$INPUT_FILE"
             ;;
 
     esac
@@ -45,5 +45,5 @@ run_sra_download() {
     [[ -n "${tmp_sra:-}" ]] &&
         rm -f "$tmp_sra"
 
-    cleanup_temp
+    downloaders_common::cleanup_temp
 }

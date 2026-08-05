@@ -333,19 +333,19 @@ main() {
             ;;
         search)
             shift
-            run_search "$@"
+            commands_search::run_search "$@"
             ;;
         download)
             shift
-            run_download "$@"
+            commands_download::run_download "$@"
             ;;
         geo-srr)
             shift
-            run_geo_srr "$@"
+            commands_geo_srr::run_geo_srr "$@"
             ;;
         bp-srr)
             shift
-            run_bioproject_srr "$@"
+            commands_bioproject_srr::run_bioproject_srr "$@"
             ;;
         *)
             echo "Unknown command: $cmd" >&2

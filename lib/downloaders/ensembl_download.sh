@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-get_latest_ensembl_release() {
+downloaders_ensembl_download::get_latest_ensembl_release() {
     local species_dir="$1"
 
     log_info "Detecting latest Ensembl release..." >&2
@@ -34,7 +34,7 @@ get_latest_ensembl_release() {
     return 1
 }
 
-download_ensembl_fasta() {
+downloaders_ensembl_download::download_ensembl_fasta() {
 
     # --------------------------------------------------
     # Help
@@ -96,7 +96,7 @@ EOF
     if [[ -n "${ENSEMBL_RELEASE:-}" ]]; then
         release="$ENSEMBL_RELEASE"
     else
-        release=$(get_latest_ensembl_release "$species_dir" | tr -d '\r\n[:space:]') || return 1
+        release=$(downloaders_ensembl_download::get_latest_ensembl_release "$species_dir" | tr -d '\r\n[:space:]') || return 1
     fi
 
     local species_prefix
@@ -159,13 +159,13 @@ EOF
         return 0
     }
 
-    retry_command curl -L -o "$out_file" "$url" || return 1
+    downloaders_geo_download::retry_command curl -L -o "$out_file" "$url" || return 1
 
     log_info "✓ Downloaded ${fasta_type} FASTA from Ensembl"
     return 0
 }
 
-download_transcriptome() {
+downloaders_ensembl_download::download_transcriptome() {
 
     # --------------------------------------------------
     # Help
@@ -219,7 +219,7 @@ EOF
                 return 1
             }
 
-            check_command datasets || return 1
+            downloaders_common::check_command datasets || return 1
 
             local output_dir="${OUTPUT_DIR}/transcriptomes/${accession}"
             mkdir -p "$output_dir"
@@ -227,7 +227,7 @@ EOF
 
             log_info "Using NCBI datasets for $accession..."
 
-            if retry_command datasets download genome accession "$accession" \
+            if downloaders_geo_download::retry_command datasets download genome accession "$accession" \
                 --include rna,gff3,gbff,gtf,seq-report \
                 --filename "$zip_file"; then
 
@@ -254,16 +254,16 @@ EOF
             local output_dir="${OUTPUT_DIR}/transcriptomes/${species}/${fasta_type}"
             mkdir -p "$output_dir"
 
-            download_ensembl_fasta "$species" "$fasta_type" "$output_dir"
+            downloaders_ensembl_download::download_ensembl_fasta "$species" "$fasta_type" "$output_dir"
             return $?
             ;;
 
         auto)
             [[ -n "$accession" ]] && \
-                download_transcriptome "$accession" "$species" "ncbi" "$fasta_type" && return 0
+                downloaders_ensembl_download::download_transcriptome "$accession" "$species" "ncbi" "$fasta_type" && return 0
 
             [[ -n "$species" ]] && \
-                download_transcriptome "$accession" "$species" "ensembl" "$fasta_type" && return 0
+                downloaders_ensembl_download::download_transcriptome "$accession" "$species" "ensembl" "$fasta_type" && return 0
 
             log_error "Auto mode failed"
             return 1
@@ -276,7 +276,7 @@ EOF
     esac
 }
 
-download_proteome() {
+downloaders_ensembl_download::download_proteome() {
 
     # --------------------------------------------------
     # Help
@@ -326,7 +326,7 @@ EOF
                 return 1
             }
 
-            check_command datasets || return 1
+            downloaders_common::check_command datasets || return 1
 
             local output_dir="${OUTPUT_DIR}/proteomes/${accession}"
             mkdir -p "$output_dir"
@@ -334,7 +334,7 @@ EOF
 
             log_info "Using NCBI datasets for $accession..."
 
-            if retry_command datasets download genome accession "$accession" \
+            if downloaders_geo_download::retry_command datasets download genome accession "$accession" \
                 --include protein,cds,seq-report \
                 --filename "$zip_file"; then
 
@@ -361,16 +361,16 @@ EOF
             local output_dir="${OUTPUT_DIR}/proteomes/${species}/${fasta_type}"
             mkdir -p "$output_dir"
 
-            download_ensembl_fasta "$species" "$fasta_type" "$output_dir"
+            downloaders_ensembl_download::download_ensembl_fasta "$species" "$fasta_type" "$output_dir"
             return $?
             ;;
 
         auto)
             [[ -n "$accession" ]] && \
-                download_proteome "$accession" "$species" "ncbi" "$fasta_type" && return 0
+                downloaders_ensembl_download::download_proteome "$accession" "$species" "ncbi" "$fasta_type" && return 0
 
             [[ -n "$species" ]] && \
-                download_proteome "$accession" "$species" "ensembl" "$fasta_type" && return 0
+                downloaders_ensembl_download::download_proteome "$accession" "$species" "ensembl" "$fasta_type" && return 0
 
             log_error "Auto mode failed"
             return 1

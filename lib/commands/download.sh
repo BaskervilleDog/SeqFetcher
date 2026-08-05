@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-execute_download() {
+commands_download::execute_download() {
 
     log_info \
         "Starting download ($DOWNLOAD_TYPE)"
@@ -8,31 +8,31 @@ execute_download() {
     case "$DOWNLOAD_TYPE" in
 
         assembly)
-            run_assembly_download
+            downloaders_assembly::run_assembly_download
             ;;
 
         gene)
-            run_gene_download
+            downloaders_gene::run_gene_download
             ;;
 
         sra)
-            run_sra_download
+            downloaders_sra::run_sra_download
             ;;
 
         geo)
-            run_geo_download
+            downloaders_geo::run_geo_download
             ;;
 
         ensembl-fasta)
-            run_ensembl_download
+            downloaders_ensembl::run_ensembl_download
             ;;
 
         transcriptome)
-            run_transcriptome_download
+            downloaders_transcriptome::run_transcriptome_download
             ;;
 
         proteome)
-            run_proteome_download
+            downloaders_proteome::run_proteome_download
             ;;
         *)
             log_error "Unknown download type: $DOWNLOAD_TYPE"
@@ -42,8 +42,8 @@ execute_download() {
     esac
 }
 
-run_download() {
-    parse_download_arguments "$@"
-    validate_download_inputs
-    execute_download
+commands_download::run_download() {
+    parsers_download::parse_download_arguments "$@"
+    validators_download::validate_download_inputs
+    commands_download::execute_download
 }

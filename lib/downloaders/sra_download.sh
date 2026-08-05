@@ -5,12 +5,12 @@
 #==============================================================
 
 # --- SRA accession validator (local, correct) ---
-validate_sra_accession() {
+downloaders_sra_download::validate_sra_accession() {
     local acc="$1"
     [[ "$acc" =~ ^(SRR|ERR|DRR)[0-9]+$ ]]
 }
 
-_download_sra_loop() {
+downloaders_sra_download::_download_sra_loop() {
 
     local method="$1"
     local accession_list="$2"
@@ -41,7 +41,7 @@ _download_sra_loop() {
         # -----------------------------
         # Validate SRA accession
         # -----------------------------
-        if ! validate_sra_accession "$accession"; then
+        if ! downloaders_sra_download::validate_sra_accession "$accession"; then
             log_error "Invalid SRA accession format: $accession"
             log_error "Expected: SRRxxxxxx, ERRxxxxxx or DRRxxxxxx"
             ((failed++))
@@ -52,7 +52,7 @@ _download_sra_loop() {
         # -----------------------------
         # Dispatch to method
         # -----------------------------
-        if _download_one_sra "$method" "$accession"; then
+        if downloaders_sra_download::_download_one_sra "$method" "$accession"; then
             ((success++))
             log_info "✓ Completed: $accession"
         else
@@ -85,20 +85,20 @@ _download_sra_loop() {
 # Download single sra-files
 #==============================================================
 
-_download_one_sra() {
+downloaders_sra_download::_download_one_sra() {
 
     local method="$1"
     local accession="$2"
 
     case "$method" in
         fasterq)
-            _download_fasterq "$accession"
+            downloaders_sra_download::_download_fasterq "$accession"
             ;;
         prefetch)
-            _download_prefetch "$accession"
+            downloaders_sra_download::_download_prefetch "$accession"
             ;;
         parallel)
-            _download_parallel "$accession"
+            downloaders_sra_download::_download_parallel "$accession"
             ;;
         *)
             log_error "Unknown SRA download method: $method"
@@ -111,7 +111,7 @@ _download_one_sra() {
 # Download sra-files using fasterq dump
 #==============================================================
 
-_download_fasterq() {
+downloaders_sra_download::_download_fasterq() {
 
     local accession="$1"
 
@@ -134,7 +134,7 @@ _download_fasterq() {
 # Download sra-files with prefetch and fasterq dump
 #==============================================================
 
-_download_prefetch() {
+downloaders_sra_download::_download_prefetch() {
 
     local accession="$1"
 
@@ -171,7 +171,7 @@ _download_prefetch() {
 # Download sra-files parallel-fasterq-dump
 #==============================================================
 
-_download_parallel() {
+downloaders_sra_download::_download_parallel() {
 
     local accession="$1"
 
@@ -192,17 +192,17 @@ _download_parallel() {
 # Public entry points
 # ============================================================
 
-download_sra_fasterq() {
+downloaders_sra_download::download_sra_fasterq() {
     log_step "METHOD 1: fasterq-dump (simple & fast)"
-    _download_sra_loop "fasterq" "$1"
+    downloaders_sra_download::_download_sra_loop "fasterq" "$1"
 }
 
-download_sra_prefetch() {
+downloaders_sra_download::download_sra_prefetch() {
     log_step "METHOD 2: prefetch + fasterq-dump (most robust)"
-    _download_sra_loop "prefetch" "$1"
+    downloaders_sra_download::_download_sra_loop "prefetch" "$1"
 }
 
-download_parallel_fastq() {
+downloaders_sra_download::download_parallel_fastq() {
     log_step "METHOD 3: parallel-fastq-dump (fastest)"
-    _download_sra_loop "parallel" "$1"
+    downloaders_sra_download::_download_sra_loop "parallel" "$1"
 }

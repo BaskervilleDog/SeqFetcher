@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-run_ensembl_download() {
+downloaders_ensembl::run_ensembl_download() {
 
-    prepare_download_environment
+    downloaders_common::prepare_download_environment
 
     export ENSEMBL_RELEASE
 
-    download_ensembl_fasta \
+    downloaders_ensembl_download::download_ensembl_fasta \
         "$ENSEMBL_SPECIES" \
         "$ENSEMBL_TYPE" \
         "$OUTDIR"
 
-    cleanup_temp
+    downloaders_common::cleanup_temp
 }

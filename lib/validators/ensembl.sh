@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-validate_ensembl_download() {
+validators_ensembl::validate_ensembl_download() {
 
     [[ -z "$ENSEMBL_SPECIES" ]] &&
     {
@@ -13,4 +13,6 @@ validate_ensembl_download() {
         log_error "Ensembl FASTA requires --type"
         exit 1
     }
+
+    return 0
 }

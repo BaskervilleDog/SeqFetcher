@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-validate_assembly_download() {
+validators_assembly::validate_assembly_download() {
 
     [[ -z "$ACCESSION" &&
        -z "$ACCESSION_FILE" ]] &&
@@ -15,4 +15,6 @@ validate_assembly_download() {
         log_error "Accession file not found: $ACCESSION_FILE"
         exit 1
     }
+
+    return 0
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-validate_search_inputs() {
+validators_search::validate_search_inputs() {
 
     [[ -z "$ORGANISM" ]] &&
     {
@@ -20,4 +20,6 @@ validate_search_inputs() {
         [[ "$EXTRACT_GENES" == true ]] &&
             OUTPUT_FILE="${OUTDIR}/gene_ids.txt"
     fi
+
+    return 0
 }

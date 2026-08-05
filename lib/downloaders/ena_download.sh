@@ -12,16 +12,16 @@
 #
 # Example in main script:
 #   export -f log_info log_error log_warning
-#   export -f download_ena_worker download_ena validate_sra_accession
+#   export -f downloaders_ena_download::download_ena_worker downloaders_ena_download::download_ena downloaders_sra_download::validate_sra_accession
 #   export OUTPUT_DIR TEMP_DIR PARALLEL_JOBS
 # ==============================================================================
 
 # --------------------------------------------------
 # Validation function (standalone version)
-# Use this if validate_sra_accession is not available
+# Use this if downloaders_sra_download::validate_sra_accession is not available
 # --------------------------------------------------
-if ! command -v validate_sra_accession &>/dev/null; then
-    validate_sra_accession() {
+if ! command -v downloaders_sra_download::validate_sra_accession &>/dev/null; then
+    downloaders_sra_download::validate_sra_accession() {
         local accession="$1"
         
         # Check if empty
@@ -45,13 +45,13 @@ fi
 # --------------------------------------------------
 # Worker function for downloading a single accession
 # --------------------------------------------------
-download_ena_worker() {
+downloaders_ena_download::download_ena_worker() {
     local accession="$1"
     local output_dir="${2:-${OUTPUT_DIR:-downloads}}"
     local temp_dir="${3:-${TEMP_DIR:-temp_downloads}}"
     
     # Validate accession format
-    if ! validate_sra_accession "$accession"; then
+    if ! downloaders_sra_download::validate_sra_accession "$accession"; then
         log_error "[$accession] Invalid accession format"
         return 1
     fi
@@ -191,7 +191,7 @@ download_ena_worker() {
 # --------------------------------------------------
 # Main parallelized ENA download function
 # --------------------------------------------------
-download_ena() {
+downloaders_ena_download::download_ena() {
 
     # Help / usage
     if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
@@ -265,7 +265,7 @@ EOF
     # Export necessary variables for parallel execution
     export OUTPUT_DIR="$output_dir"
     export TEMP_DIR="$temp_dir"
-    export -f download_ena_worker validate_sra_accession
+    export -f downloaders_ena_download::download_ena_worker downloaders_sra_download::validate_sra_accession
     export -f log_info log_error log_warning 2>/dev/null || true
 
     # Check if GNU parallel is available
@@ -279,7 +279,7 @@ EOF
                      --keep-order \
                      --env OUTPUT_DIR \
                      --env TEMP_DIR \
-                     download_ena_worker {} "$output_dir" "$temp_dir"
+                     downloaders_ena_download::download_ena_worker {} "$output_dir" "$temp_dir"
         
         local exit_code=$?
         
@@ -315,7 +315,7 @@ EOF
             done
             
             # Start new download in background
-            download_ena_worker "$accession" "$output_dir" "$temp_dir" &
+            downloaders_ena_download::download_ena_worker "$accession" "$output_dir" "$temp_dir" &
             pids+=($!)
             
         done < "$accession_list"

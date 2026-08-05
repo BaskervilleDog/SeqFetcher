@@ -7,7 +7,7 @@
 # Helper Functions
 #==============================================================
 
-retry_command() {
+downloaders_geo_download::retry_command() {
     local max_attempts=3
     local attempt=1
     
@@ -23,7 +23,7 @@ retry_command() {
     return 1
 }
 
-validate_geo_accession() {
+downloaders_geo_download::validate_geo_accession() {
     local accession="$1"
     
     if [[ -z "$accession" ]]; then
@@ -45,7 +45,7 @@ validate_geo_accession() {
 # GEO Help Functions
 #==============================================================
 
-geo_help_download_supplementary() {
+downloaders_geo_download::geo_help_download_supplementary() {
     cat <<EOF
 Usage:
   seqfetcher download [options]
@@ -61,7 +61,7 @@ Example:
 EOF
 }
 
-geo_help_create_srr() {
+downloaders_geo_download::geo_help_create_srr() {
     cat <<EOF
 Usage:
   seqfetcher geo-srr [options]
@@ -82,8 +82,8 @@ EOF
 # GEO Download Functions
 #==============================================================
 
-download_geo_supplementary() {
-    is_help "$1" && { geo_help_download_supplementary; return 0; }
+downloaders_geo_download::download_geo_supplementary() {
+    downloaders_common::is_help "$1" && { downloaders_geo_download::geo_help_download_supplementary; return 0; }
     
     local geo_accession=""
     local output_dir="${OUTPUT_DIR:-downloads}"
@@ -95,10 +95,10 @@ download_geo_supplementary() {
             --outdir)
                 output_dir="$2"; shift 2 ;;
             --help|-h)
-                geo_help_download_supplementary; return 0 ;;
+                downloaders_geo_download::geo_help_download_supplementary; return 0 ;;
             *)
                 log_error "Unknown option: $1"
-                geo_help_download_supplementary
+                downloaders_geo_download::geo_help_download_supplementary
                 return 1
                 ;;
         esac
@@ -106,7 +106,7 @@ download_geo_supplementary() {
     
     log_step "Downloading GEO Supplementary Files"
     
-    if ! validate_geo_accession "$geo_accession"; then
+    if ! downloaders_geo_download::validate_geo_accession "$geo_accession"; then
         return 1
     fi
     
@@ -142,7 +142,7 @@ download_geo_supplementary() {
         
         log_info "  Downloading: $filename"
         
-        if retry_command wget -c -q --show-progress \
+        if downloaders_geo_download::retry_command wget -c -q --show-progress \
             -P "${output_dir}/metadata/${geo_accession}" \
             "${ftp_base}${filename}"; then
             ((file_count++))
@@ -166,8 +166,8 @@ download_geo_supplementary() {
     log_info "Files saved to: ${output_dir}/metadata/${geo_accession}/"
 }
 
-create_srr_list_from_geo() {
-    is_help "$1" && { geo_help_create_srr; return 0; }
+downloaders_geo_download::create_srr_list_from_geo() {
+    downloaders_common::is_help "$1" && { downloaders_geo_download::geo_help_create_srr; return 0; }
 
     local geo_accession=""
     local output_file="GEO_SRR_list.txt"
@@ -178,10 +178,10 @@ create_srr_list_from_geo() {
             --geo)     geo_accession="$2"; shift 2 ;;
             --out)     output_file="$2";   shift 2 ;;
             --outdir)  output_dir="$2";    shift 2 ;;
-            --help|-h) geo_help_create_srr; return 0 ;;
+            --help|-h) downloaders_geo_download::geo_help_create_srr; return 0 ;;
             *)
                 log_error "Unknown option: $1"
-                geo_help_create_srr
+                downloaders_geo_download::geo_help_create_srr
                 return 1
                 ;;
         esac
@@ -189,9 +189,9 @@ create_srr_list_from_geo() {
 
     log_step "Creating SRR list from GEO accession"
 
-    check_command curl    || return 1
-    check_command python3 || return 1
-    validate_geo_accession "$geo_accession" || return 1
+    downloaders_common::check_command curl    || return 1
+    downloaders_common::check_command python3 || return 1
+    downloaders_geo_download::validate_geo_accession "$geo_accession" || return 1
 
     mkdir -p "${TEMP_DIR}"
 

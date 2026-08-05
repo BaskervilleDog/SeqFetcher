@@ -4,7 +4,7 @@
 # BioProject Help
 #==============================================================
 
-bioproject_help_create_srr() {
+downloaders_bioproject_download::bioproject_help_create_srr() {
     cat <<EOF
 Usage:
   seqfetcher bp-srr [options]
@@ -25,7 +25,7 @@ EOF
 # BioProject Validation
 #==============================================================
 
-validate_bioproject_accession() {
+downloaders_bioproject_download::validate_bioproject_accession() {
     local accession="$1"
     if [[ -z "$accession" ]]; then
         log_error "BioProject accession cannot be empty"
@@ -43,8 +43,8 @@ validate_bioproject_accession() {
 # BioProject → SRR list + metadata
 #==============================================================
 
-create_srr_list_from_bioproject() {
-    is_help "$1" && { bioproject_help_create_srr; return 0; }
+downloaders_bioproject_download::create_srr_list_from_bioproject() {
+    downloaders_common::is_help "$1" && { downloaders_bioproject_download::bioproject_help_create_srr; return 0; }
 
     local bioproject=""
     local output_file="BioProject_SRR_list.txt"
@@ -55,10 +55,10 @@ create_srr_list_from_bioproject() {
             --bioproject) bioproject="$2";    shift 2 ;;
             --out)        output_file="$2";   shift 2 ;;
             --outdir)     output_dir="$2";    shift 2 ;;
-            --help|-h)    bioproject_help_create_srr; return 0 ;;
+            --help|-h)    downloaders_bioproject_download::bioproject_help_create_srr; return 0 ;;
             *)
                 log_error "Unknown option: $1"
-                bioproject_help_create_srr
+                downloaders_bioproject_download::bioproject_help_create_srr
                 return 1
                 ;;
         esac
@@ -66,9 +66,9 @@ create_srr_list_from_bioproject() {
 
     log_step "Creating SRR list from BioProject accession"
 
-    check_command curl    || return 1
-    check_command python3 || return 1
-    validate_bioproject_accession "$bioproject" || return 1
+    downloaders_common::check_command curl    || return 1
+    downloaders_common::check_command python3 || return 1
+    downloaders_bioproject_download::validate_bioproject_accession "$bioproject" || return 1
 
     mkdir -p "${TEMP_DIR}"
 

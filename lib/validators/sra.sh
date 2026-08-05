@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-validate_sra_download() {
+validators_sra::validate_sra_download() {
 
     [[ -z "$SRA_METHOD" ]] &&
     {
@@ -21,4 +21,6 @@ validate_sra_download() {
         log_error "SRA accession file not found: $ACCESSION_FILE"
         exit 1
     }
+
+    return 0
 }
