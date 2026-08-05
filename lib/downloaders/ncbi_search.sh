@@ -227,14 +227,20 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
     fi
     
     # Pretty table display
-    printf "%-4s %-18s %-30s %-12s %-10s %-18s %s\n" \
+    #
+    # Every fixed-width column gets a matching `.N` precision (not just a
+    # `-N` minimum width) so a value longer than its column - e.g. LEVEL's
+    # "Complete Genome" (16 chars) or REFSEQ_CATEGORY's "representative
+    # genome" (21 chars) - is truncated instead of overflowing into the
+    # next column and breaking alignment for every row after it.
+    printf "%-4s %-18.18s %-30.30s %-16.16s %-12.12s %-22.22s %s\n" \
         "ID" "ACCESSION" "ORGANISM" "LEVEL" "STATUS" "REFSEQ_CATEGORY" "NAME"
-    printf "%-4s %-18s %-30s %-12s %-10s %-18s %s\n" \
-        "----" "------------------" "------------------------------" "------------" "----------" "------------------" "----------------------------"
-    
+    printf "%-4s %-18.18s %-30.30s %-16.16s %-12.12s %-22.22s %s\n" \
+        "----" "------------------" "------------------------------" "----------------" "------------" "----------------------" "----------------------------"
+
     nl -w2 -s"$(printf '\t')" "$tmp_tsv" | awk -F'\t' '{
-        printf "%-4s %-18s %-30.30s %-12s %-10s %-18s %s\n",
-        $1, $2, substr($3,1,30), $4, $5, $6, $7
+        printf "%-4s %-18.18s %-30.30s %-16.16s %-12.12s %-22.22s %s\n",
+        $1, $2, $3, $4, $5, $6, $7
     }'
     echo
     
