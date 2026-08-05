@@ -17,17 +17,17 @@ setup() {
     [[ "$output" == *"Missing --organism"* ]]
 }
 
-@test "validators_search::validate_search_inputs defaults OUTPUT_FILE from OUTDIR" {
+@test "validators_search::validate_search_inputs defaults OUTPUT_FILE under OUTDIR/tables" {
     ORGANISM="E. coli"
     validators_search::validate_search_inputs
-    [ "$OUTPUT_FILE" = "${OUTDIR}/assemblies.tsv" ]
+    [ "$OUTPUT_FILE" = "${OUTDIR}/tables/assemblies.tsv" ]
 }
 
-@test "validators_search::validate_search_inputs defaults OUTPUT_FILE to gene_ids.txt when extracting genes" {
+@test "validators_search::validate_search_inputs defaults OUTPUT_FILE to tables/gene_ids.txt when extracting genes" {
     ORGANISM="E. coli"
     EXTRACT_GENES=true
     validators_search::validate_search_inputs
-    [ "$OUTPUT_FILE" = "${OUTDIR}/gene_ids.txt" ]
+    [ "$OUTPUT_FILE" = "${OUTDIR}/tables/gene_ids.txt" ]
 }
 
 # --- validators_assembly -----------------------------------------------
