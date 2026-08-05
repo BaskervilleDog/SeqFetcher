@@ -87,7 +87,11 @@ downloaders_ortholog_download::_elink_first_id() {
 #   Step 2: elink protein->gene using that UID -> Gene ID
 downloaders_ortholog_download::_resolve_protein_to_gene() {
     local accession="$1"
-    log_info "  [$accession] Resolving protein accession -> Gene ID..."
+    # >&2: this function's stdout is the resolved Gene ID, captured whole
+    # by resolve_gene_id's caller via $(...) - a progress line on stdout
+    # here would get spliced into that value (log_info, like every log_*
+    # except log_error, writes to stdout).
+    log_info "  [$accession] Resolving protein accession -> Gene ID..." >&2
 
     local puid
     puid=$(downloaders_ortholog_download::_entrez_fetch \
@@ -110,7 +114,8 @@ downloaders_ortholog_download::_resolve_protein_to_gene() {
 # link names instead.
 downloaders_ortholog_download::_resolve_nuccore_to_gene() {
     local accession="$1"
-    log_info "  [$accession] Resolving nucleotide accession -> Gene ID..."
+    # >&2: same reason as _resolve_protein_to_gene above.
+    log_info "  [$accession] Resolving nucleotide accession -> Gene ID..." >&2
 
     local nuid
     nuid=$(downloaders_ortholog_download::_entrez_fetch \
