@@ -5,6 +5,7 @@ Full usage guide for every SeqFetcher command. For installation and a
 
 ## Table of Contents
 
+- [Output Layout](#output-layout)
 - [Searching Genomes](#searching-genomes)
 - [Downloading Assemblies](#downloading-assemblies)
 - [Downloading Genes](#downloading-genes)
@@ -16,6 +17,40 @@ Full usage guide for every SeqFetcher command. For installation and a
 - [Common Workflows](#common-workflows)
 - [File Formats](#file-formats)
 - [Full Option Reference](#full-option-reference)
+
+---
+
+## Output Layout
+
+Every command writes under `--outdir` (default `downloads/`). Tables and
+accession/run lists - anything you'd open in a spreadsheet or feed back
+into another `seqfetcher` command as an `--*-file` argument, not sequence
+data - are kept separate from downloaded files, under `tables/`:
+
+```
+downloads/
+├── tables/                              search, geo-srr, and bp-srr output
+│   ├── taxonomy_metadata.tsv              search
+│   ├── assemblies.tsv                     search
+│   ├── assemblies_accessions.txt          search
+│   ├── gene_ids.txt                       search --extract-genes
+│   ├── gene_ids_metadata.tsv              search --extract-genes
+│   ├── GEO_SRR_list.txt                   geo-srr
+│   ├── GEO_SRR_list_metadata.tsv          geo-srr
+│   ├── BioProject_SRR_list.txt            bp-srr
+│   └── BioProject_SRR_list_metadata.tsv   bp-srr
+├── <ACCESSION>/                         download --accession(-file)
+├── batch_N_genes_X_to_Y/                download --gene-id / --gene-file
+├── fastq/                               download --sra-method ...
+├── metadata/<GSE>/                      download --geo (supplementary files)
+├── transcriptomes/<accession-or-species>/...   download --transcriptome
+├── proteomes/<accession-or-species>/...        download --proteome
+└── ensembl/<species>/<type>/            download --ensembl-fasta
+```
+
+`--output`/`--out` still take any filename or path you give them as-is
+(absolute, or starting with `./`) - the `tables/` nesting is only what
+happens when you don't override it.
 
 ---
 
@@ -44,7 +79,7 @@ ID   ACCESSION          ORGANISM           LEVEL        STATUS      REFSEQ_CATEG
 - `--outdir` - Output directory (default: downloads)
 - `--output` - Custom output filename
 
-**Output Files:**
+**Output Files** (see [Output Layout](#output-layout) - all under `tables/`):
 - `assemblies.tsv` - Full assembly metadata
 - `assemblies_accessions.txt` - Accession numbers only
 - `taxonomy_metadata.tsv` - Taxonomic information
@@ -324,7 +359,7 @@ seqfetcher download --accession-file assemblies.tsv --jobs 8
 
 ```bash
 seqfetcher search --organism "Mus musculus" --extract-genes
-seqfetcher download --gene-file downloads/gene_ids.txt --jobs 6
+seqfetcher download --gene-file downloads/tables/gene_ids.txt --jobs 6
 ```
 
 ### Workflow 4: RNA-Seq Pipeline

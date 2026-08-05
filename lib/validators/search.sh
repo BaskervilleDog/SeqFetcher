@@ -15,10 +15,12 @@ validators_search::validate_search_inputs() {
     }
 
     if [[ -z "$OUTPUT_FILE" ]]; then
-        OUTPUT_FILE="${OUTDIR}/assemblies.tsv"
+        # Tables/lists, not sequence data, so they live under OUTDIR/tables/
+        # rather than cluttering OUTDIR's root alongside downloaded files.
+        OUTPUT_FILE="${OUTDIR}/tables/assemblies.tsv"
 
         [[ "$EXTRACT_GENES" == true ]] &&
-            OUTPUT_FILE="${OUTDIR}/gene_ids.txt"
+            OUTPUT_FILE="${OUTDIR}/tables/gene_ids.txt"
     fi
 
     return 0

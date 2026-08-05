@@ -282,7 +282,9 @@ PYEOF
     fi
 
     if [[ "$output_file" != /* ]] && [[ "$output_file" != ./* ]]; then
-        output_file="${output_dir}/${output_file}"
+        # A list of SRR accessions + its metadata TSV, not sequence data -
+        # keep it out of output_dir's root alongside downloaded files.
+        output_file="${output_dir}/tables/${output_file}"
     fi
 
     local meta_out="${output_file%.txt}_metadata.tsv"

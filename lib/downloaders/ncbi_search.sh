@@ -80,6 +80,7 @@ downloaders_ncbi_search::search_metadata_by_organism() {
     
     # Write TSV table to file
     if [[ -n "$output_file" ]]; then
+        mkdir -p -- "$(dirname -- "$output_file")"
         {
             printf "SPECIES\tCOMMON_NAME\tTAX_ID\tDOMAIN\tKINGDOM\tPHYLUM\tCLASS\tORDER\tFAMILY\tGENUS\tASSEMBLIES\tGENES\tPROTEIN_CODING\ttRNA\trRNA\tncRNA\tmiscRNA\n"
             cat "$tmp_tsv"
@@ -213,6 +214,7 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
     
     # Write TSV table to file
     if [[ -n "$output_file" ]]; then
+    mkdir -p -- "$(dirname -- "$output_file")"
     {
         printf "ACCESSION\tORGANISM\tLEVEL\tSTATUS\tREFSEQ_CATEGORY\tNAME\n"
         cat "$tmp_tsv"
@@ -254,6 +256,8 @@ downloaders_ncbi_search::extract_gene_ids_from_reference() {
     local metadata_file="${output_file%.txt}_metadata.tsv"
 
     [[ -z "$organism" ]] && { log_error "Organism name required"; return 1; }
+
+    mkdir -p -- "$(dirname -- "$output_file")"
 
     log_step "Extracting gene IDs from reference genome for: $organism"
 
