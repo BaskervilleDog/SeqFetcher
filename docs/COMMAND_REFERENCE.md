@@ -378,9 +378,11 @@ seqfetcher download --ortholog-file genes.txt --jobs 8
 **Limitations** (inherited from the NCBI Datasets ortholog API, not
 something SeqFetcher can work around):
 - Coverage is vertebrates and insects only - other taxa return 0 orthologs.
-- Results are silently capped around ~499 sequences; SeqFetcher warns
-  loudly when a result hits that cap, since it means the set is truncated,
-  not complete.
+- The raw API response has been observed to cap around ~499 records;
+  SeqFetcher warns when a result's raw count lands right at that mark,
+  since it may mean the set is truncated. A large result well past that
+  (thousands of sequences for a big gene family, say) is not a truncation
+  signal and isn't flagged.
 
 **Optional:** set `NCBI_API_KEY` to raise the Entrez rate limit from 3 to
 10 requests/second (register free at

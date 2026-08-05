@@ -163,6 +163,17 @@ downloaders_ortholog_download::resolve_gene_id() {
 # only; other taxa will yield 0 orthologs. The API also silently truncates
 # results around ~499 sequences - hitting that gets a loud warning so it
 # isn't mistaken for a complete set.
+
+# True (exit 0) when a raw record count sits in the narrow window around
+# NCBI's observed ~499 cap - not "499 or more", which would flag every
+# large-but-genuine gene family (a real, uncapped result can run into the
+# thousands) as truncated. Split out from fetch_orthologs so the boundary
+# is unit-testable without a network call.
+downloaders_ortholog_download::_is_near_cap() {
+    local raw_count="$1"
+    (( raw_count >= 495 && raw_count <= 503 ))
+}
+
 downloaders_ortholog_download::fetch_orthologs() {
     local gene_id="$1" output_faa="$2" label="${3:-$gene_id}"
     local ortho_zip="$TEMP_DIR/orthologs_${gene_id}.zip"
@@ -199,6 +210,13 @@ downloaders_ortholog_download::fetch_orthologs() {
         return 1
     fi
 
+    # Truncation, if it happens, happens in the raw API response - a large
+    # but genuine gene family (thousands of real orthologs) is not
+    # truncation and must not be flagged as such once dedup is applied
+    # below, so the cap check has to look at this raw, pre-dedup count.
+    local raw_count
+    raw_count=$(grep -c '^>' "$output_faa" 2>/dev/null || echo 0)
+
     # Deduplicate: some orthologs appear in more than one taxon FAA file.
     # Keep the first occurrence of each header's accession (first field).
     awk '/^>/{
@@ -212,9 +230,9 @@ downloaders_ortholog_download::fetch_orthologs() {
     count=$(grep -c '^>' "$output_faa" 2>/dev/null || echo 0)
     log_info "  [$label] $count ortholog protein sequences ready"
 
-    if [[ "$count" -ge 499 ]]; then
-        log_warning "  [$label] Dataset cap reached: $count sequences (NCBI caps ortholog downloads at ~499)"
-        log_warning "  [$label] Results are incomplete - split by taxon or use the NCBI web portal"
+    if downloaders_ortholog_download::_is_near_cap "$raw_count"; then
+        log_warning "  [$label] Possible dataset cap: $raw_count raw records (NCBI has been observed capping ortholog downloads around ~499)"
+        log_warning "  [$label] Results may be incomplete - split by taxon or use the NCBI web portal to confirm"
     fi
 
     rm -rf "$ortho_zip" "$ortho_dir"
@@ -300,7 +318,13 @@ downloaders_ortholog_download::download_orthologs_batch() {
                     new_pids+=("$pid")
                 else
                     wait "$pid"
-                    [[ $? -eq 0 ]] && ((successful++)) || ((failed++))
+                    # Pre-increment, not post: `((successful++))` evaluates
+                    # to successful's *old* value, so going 0->1 is exit
+                    # status 1 (arithmetic false) and the `||` fires too -
+                    # incrementing failed right along with a genuine
+                    # success. `((++successful))` evaluates to the new
+                    # value instead, so it's truthy exactly when it should be.
+                    [[ $? -eq 0 ]] && ((++successful)) || ((++failed))
                 fi
             done
             pids=("${new_pids[@]}")
@@ -311,7 +335,7 @@ downloaders_ortholog_download::download_orthologs_batch() {
     # Wait for remaining jobs
     for pid in "${pids[@]}"; do
         wait "$pid"
-        [[ $? -eq 0 ]] && ((successful++)) || ((failed++))
+        [[ $? -eq 0 ]] && ((++successful)) || ((++failed))
     done
 
     echo
