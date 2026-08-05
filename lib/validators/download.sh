@@ -32,6 +32,10 @@ validators_download::validate_download_inputs() {
             validators_proteome::validate_proteome_download
             ;;
 
+        ortholog)
+            validators_ortholog::validate_ortholog_download
+            ;;
+
         *)
             log_error "Unknown download type: $DOWNLOAD_TYPE"
             exit 1

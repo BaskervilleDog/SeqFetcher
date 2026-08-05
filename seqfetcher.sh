@@ -223,6 +223,33 @@ DOWNLOAD COMMAND
         # Download from species
         seqfetcher download --proteome --species drosophila_melanogaster
 
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ ORTHOLOG DOWNLOADS                                                      │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --ortholog ACC[,ACC,...]   Comma-separated accessions or Gene IDs
+      --ortholog-file FILE       File with one accession/Gene ID per line
+
+      Accepted accession formats:
+          NP_/XP_/WP_  - RefSeq protein accessions
+          NM_/XM_/NG_  - RefSeq nucleotide accessions
+          numeric      - NCBI Gene IDs
+      Each is resolved to a Gene ID via NCBI Entrez, then all known
+      orthologs for that gene are downloaded as a deduplicated protein
+      FASTA. Coverage is vertebrates and insects only (NCBI Datasets
+      limitation); results above ~499 sequences are a truncated, not
+      complete, set.
+
+      Examples:
+        # Single accession
+        seqfetcher download --ortholog NP_001416352.1
+
+        # Multiple accessions/Gene IDs
+        seqfetcher download --ortholog NP_001416352.1,672
+
+        # From file, 8 in parallel
+        seqfetcher download --ortholog-file genes.txt --jobs 8
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 GEO-SRR COMMAND

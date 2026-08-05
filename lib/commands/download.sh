@@ -34,6 +34,10 @@ commands_download::execute_download() {
         proteome)
             downloaders_proteome::run_proteome_download
             ;;
+
+        ortholog)
+            downloaders_ortholog::run_ortholog_download
+            ;;
         *)
             log_error "Unknown download type: $DOWNLOAD_TYPE"
             exit 1

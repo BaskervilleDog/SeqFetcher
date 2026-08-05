@@ -65,3 +65,17 @@ setup() {
     parsers_download::parse_download_arguments --accession GCF_000005845.2 --jobs 8
     [ "$PARALLEL_JOBS" = 8 ]
 }
+
+@test "parsers_download::parse_download_arguments --ortholog sets DOWNLOAD_TYPE=ortholog and ORTHOLOG_USER" {
+    parsers_download::parse_download_arguments --ortholog NP_001416352.1,672
+    [ "$ORTHOLOG" = "NP_001416352.1,672" ]
+    [ "$ORTHOLOG_USER" = true ]
+    [ "$DOWNLOAD_TYPE" = "ortholog" ]
+}
+
+@test "parsers_download::parse_download_arguments --ortholog-file sets DOWNLOAD_TYPE=ortholog and ORTHOLOG_FILE_USER" {
+    parsers_download::parse_download_arguments --ortholog-file genes.txt
+    [ "$ORTHOLOG_FILE" = "genes.txt" ]
+    [ "$ORTHOLOG_FILE_USER" = true ]
+    [ "$DOWNLOAD_TYPE" = "ortholog" ]
+}

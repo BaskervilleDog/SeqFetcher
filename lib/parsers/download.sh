@@ -52,6 +52,10 @@ parsers_download::parse_download_arguments() {
                 PROTEOME=true
                 DOWNLOAD_TYPE="proteome"
                 shift ;;
+            --ortholog)
+                ORTHOLOG="$2"; ORTHOLOG_USER=true; DOWNLOAD_TYPE="ortholog"; shift 2 ;;
+            --ortholog-file)
+                ORTHOLOG_FILE="$2"; ORTHOLOG_FILE_USER=true; DOWNLOAD_TYPE="ortholog"; shift 2 ;;
             --outdir)
                 OUTDIR="$2"; shift 2 ;;
             --jobs|-j)

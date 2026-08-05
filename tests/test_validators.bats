@@ -63,6 +63,27 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+# --- validators_ortholog -----------------------------------------------
+
+@test "validators_ortholog::validate_ortholog_download fails without --ortholog/--ortholog-file" {
+    run validators_ortholog::validate_ortholog_download
+    [ "$status" -eq 1 ]
+}
+
+@test "validators_ortholog::validate_ortholog_download fails when ortholog file doesn't exist" {
+    ORTHOLOG_FILE_USER=true
+    ORTHOLOG_FILE="$BATS_TEST_TMPDIR/nope.txt"
+    run validators_ortholog::validate_ortholog_download
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"not found"* ]]
+}
+
+@test "validators_ortholog::validate_ortholog_download passes with ORTHOLOG_USER set" {
+    ORTHOLOG_USER=true
+    run validators_ortholog::validate_ortholog_download
+    [ "$status" -eq 0 ]
+}
+
 # --- validators_sra -----------------------------------------------
 
 @test "validators_sra::validate_sra_download fails without --sra-method" {
@@ -137,6 +158,13 @@ setup() {
 @test "validators_download::validate_download_inputs dispatches to the assembly validator" {
     DOWNLOAD_TYPE="assembly"
     ACCESSION="GCF_000005845.2"
+    run validators_download::validate_download_inputs
+    [ "$status" -eq 0 ]
+}
+
+@test "validators_download::validate_download_inputs dispatches to the ortholog validator" {
+    DOWNLOAD_TYPE="ortholog"
+    ORTHOLOG_USER=true
     run validators_download::validate_download_inputs
     [ "$status" -eq 0 ]
 }
