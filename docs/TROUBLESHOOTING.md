@@ -2,7 +2,10 @@
 
 See also the [Command Reference](COMMAND_REFERENCE.md) and the
 [README](../README.md). Run `bash scripts/check_deps.sh` first - most of the
-issues below are a missing dependency it will catch in one pass.
+issues below are a missing dependency it will catch in one pass. Most of
+them can be avoided entirely by installing via `conda env create -f
+../environment.yml` instead of installing each tool by hand (see
+README "Installation").
 
 ## Troubleshooting
 

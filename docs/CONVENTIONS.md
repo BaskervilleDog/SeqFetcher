@@ -104,19 +104,26 @@ a "validation passes" test against. Each now ends with an explicit
 
 ## Dependency checking: `scripts/check_deps.sh`
 
-No package manager, no lockfile - `scripts/check_deps.sh` is what stands
-in for one. It checks that every external CLI tool `lib/**/*.sh` actually
-shells out to (`datasets`, `jq`, `parallel`, `curl`, `python3`, plus the
-SRA Toolkit / `wget` / `parallel-fastq-dump` for the commands that need
-them) is on `PATH`, split into required vs. optional. Run it first on a
-new machine:
+No package manager, no lockfile in the language-ecosystem sense -
+`scripts/check_deps.sh` is what stands in for one. It checks that every
+external CLI tool `lib/**/*.sh` actually shells out to (`datasets`, `jq`,
+`parallel`, `curl`, `python3`, plus the SRA Toolkit / `wget` /
+`parallel-fastq-dump` for the commands that need them) is on `PATH`, split
+into required vs. optional. Run it first on a new machine:
 
 ```bash
 bash scripts/check_deps.sh
 ```
 
-If a real change adds a new external tool dependency, add a `check` line
-for it here.
+`environment.yml` is the closest thing to an actual lockfile: a
+conda/mamba environment that installs all of the above from
+conda-forge/bioconda in one command (`conda env create -f environment.yml`),
+so a fresh clone doesn't need every tool installed by hand. It's the
+installation path documented first in the README.
+
+If a real change adds a new external tool dependency, add it in **both**
+places - a `check` line in `scripts/check_deps.sh` and a line in
+`environment.yml` - so the two can't drift apart.
 
 ## Function-flow & dependency graphs
 
