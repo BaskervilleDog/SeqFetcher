@@ -25,13 +25,13 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 
 ### Key Features
 
-✨ **Unified Interface** - Single command for all genomic data sources
-🚀 **Parallel Downloads** - Speed up large batch downloads
-🔍 **Smart Search** - Rank results by quality (RefSeq, reference genomes, assembly level)
-📊 **Rich Metadata** - Extract taxonomy and gene information
-✅ **Robust Validation** - MD5 checksums and file size verification
-🎯 **Multiple Sources** - NCBI, ENA, GEO, Ensembl support
-🧬 **Comprehensive Data** - Assemblies, genes, transcriptomes, proteomes, orthologs, and sequencing reads
+**Unified Interface** - Single command for genomic data sources
+**Parallel Downloads** - Speed up large batch downloads
+**Search** - Rank results by quality (RefSeq, reference genomes, assembly level)
+**Metadata** - Extract taxonomy and gene information
+**Validation** - MD5 checksums and file size verification
+**Multiple Sources** - NCBI, ENA, GEO, Ensembl support
+**Comprehensive Data** - Assemblies, genes, transcriptomes, proteomes, orthologs, and sequencing reads
 
 ### Supported Data Sources
 
