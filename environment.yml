@@ -1,0 +1,34 @@
+# Conda/mamba environment covering every external CLI tool SeqFetcher
+# shells out to (see scripts/check_deps.sh and docs/CONVENTIONS.md).
+#
+# Setup:
+#   conda env create -f environment.yml   # or: mamba env create -f environment.yml
+#   conda activate seqfetcher
+#   bash scripts/check_deps.sh            # confirm everything landed on PATH
+#   ./install.sh                          # put `seqfetcher` on PATH permanently
+#
+# Update:
+#   conda env update -f environment.yml --prune
+#
+# If a change adds a new external tool dependency, add it both here and as
+# a `check` line in scripts/check_deps.sh.
+name: seqfetcher
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # --- required (core search/download commands won't run without these) ---
+  - python=3.12
+  - jq
+  - parallel        # GNU Parallel
+  - curl
+  - unzip
+  - ncbi-datasets-cli
+  # --- optional (only needed for specific commands/methods) ---
+  - sra-tools              # fasterq-dump / prefetch, for `download --sra-method fasterq|prefetch`
+  - parallel-fastq-dump    # for `download --sra-method parallel`
+  - wget                   # fallback download client in lib/downloaders/ena_download.sh
+  # --- dev tooling (not needed to run seqfetcher, only to work on it) ---
+  - bats                   # test runner for tests/*.bats
+  - shellcheck             # lints lib/*.sh and scripts/*.sh
+  - graphviz               # `dot`, renders graphs/*.svg via scripts/generate_function_graph.sh

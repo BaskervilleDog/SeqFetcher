@@ -5,6 +5,20 @@ A unified command-line tool for searching and downloading genomic data from mult
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bash](https://img.shields.io/badge/bash-%3E%3D4.0-blue.svg)](https://www.gnu.org/software/bash/)
 
+## Quick Install
+
+```bash
+git clone https://github.com/BaskervilleDog/seqfetcher.git
+cd seqfetcher
+conda env create -f environment.yml
+conda activate seqfetcher
+./install.sh
+```
+
+`environment.yml` installs every dependency (NCBI Datasets CLI, `jq`, GNU
+Parallel, SRA Toolkit, etc.) - see [Installation](#installation) below for
+details and a non-conda alternative.
+
 ## Overview
 
 SeqFetcher simplifies genomic data retrieval by providing a unified interface to multiple databases and data types.
@@ -32,7 +46,38 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 
 ## Installation
 
-### Prerequisites
+### Option A: Conda/mamba (recommended - installs all dependencies for you)
+
+[`environment.yml`](environment.yml) pulls every external tool SeqFetcher
+needs (NCBI Datasets CLI, `jq`, GNU Parallel, SRA Toolkit, etc.) from
+conda-forge/bioconda in one shot - nothing to install by hand.
+
+```bash
+# Clone the repository
+git clone https://github.com/BaskervilleDog/seqfetcher.git
+cd seqfetcher
+
+# Create and activate the environment (all dependencies included)
+conda env create -f environment.yml   # or: mamba env create -f environment.yml
+conda activate seqfetcher
+
+# Confirm everything landed on PATH, then install the launcher
+bash scripts/check_deps.sh
+chmod +x install.sh
+./install.sh
+
+# Add to PATH
+echo 'export PATH="$PATH:$HOME/.local/bin"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Re-activate the `seqfetcher` conda environment (`conda activate seqfetcher`)
+in any new shell before running `seqfetcher` - it's what puts `datasets`,
+`jq`, `parallel`, etc. on `PATH`.
+
+### Option B: Manual prerequisites
+
+If you'd rather not use conda, install these yourself:
 
 | Tool | Required For | Installation |
 |------|-------------|--------------|
@@ -45,8 +90,6 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 `bash scripts/check_deps.sh` checks all of the above (plus `curl`,
 `python3`, and the coreutils SeqFetcher relies on) in one pass and reports
 exactly what's missing - run it before anything else on a new machine.
-
-### Install SeqFetcher
 
 ```bash
 # Clone the repository
@@ -146,6 +189,7 @@ tests/              bats-core - run with `bats tests/`
 scripts/            check_deps.sh, generate_function_graph.sh
 graphs/             auto-generated call & dependency graphs
 docs/               everything above
+environment.yml     conda/mamba environment with all dependencies
 ```
 
 See [docs/CONVENTIONS.md](docs/CONVENTIONS.md) for the reasoning behind
