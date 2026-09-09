@@ -30,6 +30,7 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 **Search** - Rank results by quality (RefSeq, reference genomes, assembly level)
 **Metadata** - Extract taxonomy and gene information
 **Validation** - MD5 checksums and file size verification
+**Pipeline-ready** - `--json` output, documented exit codes, idempotent atomic downloads, a `seqfetcher.lock.json` provenance lockfile
 **Multiple Sources** - NCBI, ENA, GEO, Ensembl support
 **Comprehensive Data** - Assemblies, genes, transcriptomes, proteomes, orthologs, and sequencing reads
 
@@ -235,6 +236,12 @@ Contributions welcome! Please:
 ---
 
 ## Changelog
+
+### Version 1.1.0 (2026-09-09)
+- Pipeline foundation: logs on stderr, payload on stdout, global `--json` / `--quiet` / `--no-color` / `--force` / `--require-pinned` / `--version`
+- Documented exit codes (0/2/3/4/5/6/7)
+- Idempotent, atomic downloads (skip-existing by default, `--force` to override) with resumable batches
+- Merged `seqfetcher.lock.json` provenance lockfile (accessions, checksums, DB releases, tool versions); Ensembl release pinning
 
 ### Version 1.0.0 (2026-01-22)
 - Initial release

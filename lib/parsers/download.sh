@@ -63,7 +63,7 @@ parsers_download::parse_download_arguments() {
             --help|-h)
                 show_help; exit 0 ;;
             *)
-                log_error "Unknown option for download: $1"; show_help; exit 1 ;;
+                log_error "Unknown option for download: $1"; show_help; exit "${EX_USAGE:-2}" ;;
         esac
     done
 }

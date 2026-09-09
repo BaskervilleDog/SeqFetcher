@@ -28,13 +28,13 @@ EOF
 downloaders_bioproject_download::validate_bioproject_accession() {
     local accession="$1"
     if [[ -z "$accession" ]]; then
-        log_error "BioProject accession cannot be empty"
-        return 1
+        log_error "BioProject accession cannot be empty (pass --bioproject PRJNAXXXXXX)"
+        return "${EX_USAGE:-2}"
     fi
     if [[ ! "$accession" =~ ^PRJ(NA|EB|DB)[0-9]+$ ]]; then
         log_error "Invalid BioProject accession format: $accession"
         log_error "Expected format: PRJNAXXXXXX, PRJEBXXXXXX, or PRJDBXXXXXX"
-        return 1
+        return "${EX_USAGE:-2}"
     fi
     return 0
 }
@@ -68,7 +68,7 @@ downloaders_bioproject_download::create_srr_list_from_bioproject() {
 
     downloaders_common::check_command curl    || return 1
     downloaders_common::check_command python3 || return 1
-    downloaders_bioproject_download::validate_bioproject_accession "$bioproject" || return 1
+    downloaders_bioproject_download::validate_bioproject_accession "$bioproject" || return $?
 
     mkdir -p "${TEMP_DIR}"
 
@@ -292,6 +292,10 @@ PYEOF
     mkdir -p "$(dirname "$output_file")"
     cp "$srr_file" "$output_file"
     cp "$meta_file" "$meta_out"
+
+    # Expose resolved paths so commands_bioproject_srr::emit_json can report them.
+    BP_SRR_OUT="$output_file"
+    BP_SRR_META="$meta_out"
 
     log_info "✓ Found $(wc -l < "$output_file") SRR/ERR/DRR accession(s)"
     log_info "Saved run list : $output_file"

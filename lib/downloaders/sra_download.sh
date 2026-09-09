@@ -44,8 +44,20 @@ downloaders_sra_download::_download_sra_loop() {
         if ! downloaders_sra_download::validate_sra_accession "$accession"; then
             log_error "Invalid SRA accession format: $accession"
             log_error "Expected: SRRxxxxxx, ERRxxxxxx or DRRxxxxxx"
-            ((failed++))
+            ((failed+=1))
             failed_list+=("$accession")
+            continue
+        fi
+
+        # -----------------------------
+        # Skip-by-default: this run already recorded as downloaded.
+        # -----------------------------
+        local key="${accession}:sra-${method}"
+        if [[ "${FORCE:-false}" != true ]] && manifest::is_done "$key"; then
+            log_info "✓ $accession already downloaded - skipping (use --force)"
+            manifest::record_run_only "$key" "$(jq -n --arg a "$accession" \
+                '{accession:$a, type:"sra-reads", source:"sra-toolkit", status:"skipped"}' 2>/dev/null || echo '{}')"
+            ((success+=1))
             continue
         fi
 
@@ -53,12 +65,16 @@ downloaders_sra_download::_download_sra_loop() {
         # Dispatch to method
         # -----------------------------
         if downloaders_sra_download::_download_one_sra "$method" "$accession"; then
-            ((success++))
-            log_info "✓ Completed: $accession"
+            ((success+=1))
+            log_success "Completed: $accession"
+            manifest::record "$key" "$(jq -n --arg a "$accession" --arg m "$method" \
+                '{accession:$a, type:"sra-reads", source:"sra-toolkit", tool:{method:$m}, status:"downloaded"}' 2>/dev/null || echo '{}')"
         else
-            log_error "✗ Failed: $accession"
-            ((failed++))
+            log_error "Failed: $accession"
+            ((failed+=1))
             failed_list+=("$accession")
+            manifest::record "$key" "$(jq -n --arg a "$accession" \
+                '{accession:$a, type:"sra-reads", source:"sra-toolkit", status:"failed"}' 2>/dev/null || echo '{}')"
         fi
 
     done < "$accession_list"
@@ -66,19 +82,11 @@ downloaders_sra_download::_download_sra_loop() {
     # -------------------------------
     # Summary
     # -------------------------------
-
-    log_info ""
     log_info "==================== DOWNLOAD SUMMARY ===================="
     log_info "Total: $total | Success: $success | Failed: $failed"
+    (( failed > 0 )) && { log_error "Failed accessions:"; printf '  - %s\n' "${failed_list[@]}" >&2; }
 
-    if (( failed > 0 )); then
-        log_error "Failed accessions:"
-        printf '  - %s\n' "${failed_list[@]}"
-        return 1
-    fi
-
-    log_info "All downloads complete!"
-    return 0
+    downloaders_common::batch_exit_code "$success" "$failed"
 }
 
 #==============================================================

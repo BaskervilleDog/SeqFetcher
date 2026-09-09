@@ -26,29 +26,55 @@ SEQFETCHER="$BASE_DIR/seqfetcher.sh"
     [ "$status" -eq 0 ]
 }
 
-@test "an unknown command exits 1 with an error" {
+@test "--version prints the version and exits 0" {
+    run "$SEQFETCHER" --version
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"1.1.0"* ]]
+}
+
+@test "an unknown global flag before a command is not treated as a command" {
+    # --frob is unknown; it's kept as a positional, so cmd becomes --frob
+    run "$SEQFETCHER" --frob
+    [ "$status" -eq 2 ]
+    [[ "$output" == *"Unknown command"* ]]
+}
+
+@test "search usage error under --json prints a JSON error object on stdout" {
+    # bats 0.4 merges stderr into $output, so capture stdout in a subshell.
+    run "$BASH" -c "'$SEQFETCHER' --json search 2>/dev/null"
+    [ "$status" -eq 2 ]
+    echo "$output" | jq -e '.status == "error" and .exit_code == 2'
+}
+
+@test "--force is accepted as a global flag (fails later at validation, not on the flag)" {
+    run "$SEQFETCHER" --force download
+    [ "$status" -eq 2 ]
+    [[ "$output" != *"Unknown"* ]]
+}
+
+@test "an unknown command exits 2 (EX_USAGE) with an error" {
     run "$SEQFETCHER" not-a-real-command
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"Unknown command: not-a-real-command"* ]]
 }
 
-@test "search with no --organism exits 1" {
+@test "search with no --organism exits 2 (EX_USAGE)" {
     run "$SEQFETCHER" search
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"Missing --organism"* ]]
 }
 
-@test "download with no type-selecting option exits 1" {
+@test "download with no type-selecting option exits 2 (EX_USAGE)" {
     run "$SEQFETCHER" download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
-@test "geo-srr with no --geo exits 1" {
+@test "geo-srr with no --geo exits 2 (EX_USAGE)" {
     run "$SEQFETCHER" geo-srr
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
-@test "bp-srr with no --bioproject exits 1" {
+@test "bp-srr with no --bioproject exits 2 (EX_USAGE)" {
     run "$SEQFETCHER" bp-srr
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }

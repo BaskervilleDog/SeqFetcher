@@ -44,6 +44,7 @@ check sed      required "text substitution, used throughout lib/"
 check grep     required "text search, used throughout lib/"
 
 echo "optional (graceful fallback, or only needed for one command/method):"
+check flock                optional "serialises writes to seqfetcher.lock.json under parallel downloads (util-linux) - a mkdir spin-lock is used if missing"
 check wget                 optional "fallback download client in lib/downloaders/ena_download.sh - curl is used if missing"
 check fasterq-dump         optional "SRA Toolkit - only needed for 'download --sra-method fasterq' - install: https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit"
 check prefetch              optional "SRA Toolkit - only needed for 'download --sra-method prefetch'"

@@ -6,14 +6,14 @@ validators_gene::validate_gene_download() {
        "$GENE_FILE_USER" == false ]] &&
     {
         log_error "Must specify --gene-id or --gene-file"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     [[ "$GENE_FILE_USER" == true &&
        ! -f "$GENE_FILE" ]] &&
     {
         log_error "Gene file not found: $GENE_FILE"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     return 0

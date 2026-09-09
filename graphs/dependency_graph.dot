@@ -25,6 +25,7 @@ digraph dependency_graph {
   "lib.downloaders.sra_download" [label="lib.downloaders.sra_download", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.downloaders.transcriptome" [label="lib.downloaders.transcriptome", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.logging" [label="lib.logging", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
+  "lib.manifest" [label="lib.manifest", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.parsers.download" [label="lib.parsers.download", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.parsers.search" [label="lib.parsers.search", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
   "lib.validation" [label="lib.validation", shape=box, style="rounded,filled", fillcolor="#cfe8ff"];
@@ -56,6 +57,7 @@ digraph dependency_graph {
   "WP_" [label="WP_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "policy" [label="policy", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "XP_" [label="XP_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "flock" [label="flock", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ERP" [label="ERP", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ERR" [label="ERR", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ERS" [label="ERS", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -65,6 +67,7 @@ digraph dependency_graph {
   "SRP" [label="SRP", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "SRX" [label="SRX", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "uninstall_seqfetcher" [label="uninstall_seqfetcher", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "raw_count" [label="raw_count", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "i" [label="i", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "download_batch" [label="download_batch", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "prefetch" [label="prefetch", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -73,8 +76,9 @@ digraph dependency_graph {
   "DB" [label="DB", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "NM_" [label="NM_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "transcriptome" [label="transcriptome", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "mktemp" [label="mktemp", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "md5" [label="md5", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "unzip" [label="unzip", shape=diamond, style=filled, fillcolor="#ffe8cc"];
-  "log_warn" [label="log_warn", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "search" [label="search", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "NP_" [label="NP_", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "geo" [label="geo", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -90,6 +94,7 @@ digraph dependency_graph {
   "jq" [label="jq", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "pep" [label="pep", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "cds" [label="cds", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "md5sum" [label="md5sum", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "curl" [label="curl", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "ortholog" [label="ortholog", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "DRX" [label="DRX", shape=diamond, style=filled, fillcolor="#ffe8cc"];
@@ -104,6 +109,7 @@ digraph dependency_graph {
   "datasets" [label="datasets", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "match" [label="match", shape=diamond, style=filled, fillcolor="#ffe8cc"];
   "proteome" [label="proteome", shape=diamond, style=filled, fillcolor="#ffe8cc"];
+  "lib.commands.bioproject_srr" -> "jq";
   "lib.commands.download" -> "assembly";
   "lib.commands.download" -> "ensembl-fasta";
   "lib.commands.download" -> "gene";
@@ -112,10 +118,15 @@ digraph dependency_graph {
   "lib.commands.download" -> "proteome";
   "lib.commands.download" -> "sra";
   "lib.commands.download" -> "transcriptome";
+  "lib.commands.geo_srr" -> "jq";
+  "lib.commands.search" -> "jq";
   "lib.downloaders.bioproject_download" -> "DB";
   "lib.downloaders.bioproject_download" -> "EB";
   "lib.downloaders.bioproject_download" -> "curl";
   "lib.downloaders.bioproject_download" -> "python3";
+  "lib.downloaders.common" -> "md5";
+  "lib.downloaders.common" -> "md5sum";
+  "lib.downloaders.common" -> "mktemp";
   "lib.downloaders.ena_download" -> "DRP";
   "lib.downloaders.ena_download" -> "DRR";
   "lib.downloaders.ena_download" -> "DRS";
@@ -133,7 +144,6 @@ digraph dependency_graph {
   "lib.downloaders.ensembl_download" -> "cdna";
   "lib.downloaders.ensembl_download" -> "cds";
   "lib.downloaders.ensembl_download" -> "dna";
-  "lib.downloaders.ensembl_download" -> "log_warn";
   "lib.downloaders.ensembl_download" -> "ncrna";
   "lib.downloaders.ensembl_download" -> "pep";
   "lib.downloaders.geo_download" -> "curl";
@@ -160,6 +170,7 @@ digraph dependency_graph {
   "lib.downloaders.ortholog_download" -> "jq";
   "lib.downloaders.ortholog_download" -> "nucleotide";
   "lib.downloaders.ortholog_download" -> "protein";
+  "lib.downloaders.ortholog_download" -> "raw_count";
   "lib.downloaders.ortholog_download" -> "unzip";
   "lib.downloaders.sra" -> "ena";
   "lib.downloaders.sra" -> "fasterq";
@@ -173,6 +184,9 @@ digraph dependency_graph {
   "lib.downloaders.sra_download" -> "parallel";
   "lib.downloaders.sra_download" -> "parallel-fastq-dump";
   "lib.downloaders.sra_download" -> "prefetch";
+  "lib.logging" -> "jq";
+  "lib.manifest" -> "flock";
+  "lib.manifest" -> "jq";
   "lib.validators.download" -> "assembly";
   "lib.validators.download" -> "ensembl-fasta";
   "lib.validators.download" -> "gene";
@@ -220,13 +234,24 @@ digraph dependency_graph {
   "seqfetcher" -> "lib.validators.transcriptome";
   "seqfetcher" -> "search";
   "seqfetcher" -> "uninstall_seqfetcher";
+  "lib.commands.bioproject_srr" -> "jq" [style=dashed, label="checks for", fontsize=9];
+  "lib.commands.geo_srr" -> "jq" [style=dashed, label="checks for", fontsize=9];
+  "lib.commands.search" -> "jq" [style=dashed, label="checks for", fontsize=9];
+  "lib.downloaders.common" -> "md5" [style=dashed, label="checks for", fontsize=9];
+  "lib.downloaders.common" -> "md5sum" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ena_download" -> "downloaders_sra_download" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ena_download" -> "parallel" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ena_download" -> "wget" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ncbi_download" -> "datasets" [style=dashed, label="checks for", fontsize=9];
+  "lib.downloaders.ncbi_download" -> "jq" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ncbi_search" -> "jq" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ncbi_search" -> "parallel" [style=dashed, label="checks for", fontsize=9];
   "lib.downloaders.ortholog_download" -> "jq" [style=dashed, label="checks for", fontsize=9];
+  "lib.logging" -> "jq" [style=dashed, label="checks for", fontsize=9];
+  "lib.manifest" -> "curl" [style=dashed, label="checks for", fontsize=9];
+  "lib.manifest" -> "datasets" [style=dashed, label="checks for", fontsize=9];
+  "lib.manifest" -> "flock" [style=dashed, label="checks for", fontsize=9];
+  "lib.manifest" -> "jq" [style=dashed, label="checks for", fontsize=9];
   "lib.validation" -> "datasets" [style=dashed, label="checks for", fontsize=9];
   "lib.validation" -> "jq" [style=dashed, label="checks for", fontsize=9];
 }

@@ -5,19 +5,19 @@ validators_search::validate_search_inputs() {
     [[ -z "$ORGANISM" ]] &&
     {
         log_error "Missing --organism"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     [[ "$MODE" != "assemblies" ]] &&
     {
         log_error "Invalid --mode: $MODE"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     [[ ! "$TOP_N" =~ ^[1-9][0-9]*$ ]] &&
     {
         log_error "Invalid --top: $TOP_N (expected a positive integer)"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     if [[ -z "$OUTPUT_FILE" ]]; then

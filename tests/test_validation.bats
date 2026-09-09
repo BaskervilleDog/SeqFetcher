@@ -36,12 +36,12 @@ load 'test_helper'
     # the crippled PATH only hides `datasets` from the inner `command -v`,
     # not bash itself from this line's own lookup.
     run env PATH="/nonexistent" "$BASH" -c "source '$BASE_DIR/lib/logging.sh'; source '$BASE_DIR/lib/validation.sh'; require_datasets"
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 3 ]   # EX_DEPENDENCY
     [[ "$output" == *"datasets"* ]]
 }
 
 @test "require_jq fails with a helpful message when jq is not on PATH" {
     run env PATH="/nonexistent" "$BASH" -c "source '$BASE_DIR/lib/logging.sh'; source '$BASE_DIR/lib/validation.sh'; require_jq"
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 3 ]   # EX_DEPENDENCY
     [[ "$output" == *"jq"* ]]
 }

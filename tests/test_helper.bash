@@ -13,6 +13,7 @@ BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$BASE_DIR/lib/config.sh"
 source "$BASE_DIR/lib/logging.sh"
 source "$BASE_DIR/lib/validation.sh"
+source "$BASE_DIR/lib/manifest.sh"
 
 for file in "$BASE_DIR"/lib/commands/*.sh; do
     source "$file"

@@ -124,54 +124,36 @@ downloaders_ena_download::download_ena_worker() {
             filename=$(basename "$ftp_url")
             output_file="${output_dir}/fastq/${filename}"
 
-            # Skip if already exists and complete
-            if [[ -f "$output_file" ]]; then
-                if [[ -n "$expected_size" && "$expected_size" != "null" ]]; then
-                    actual_size=$(stat -c%s "$output_file" 2>/dev/null || stat -f%z "$output_file" 2>/dev/null)
-                    if [[ "$actual_size" == "$expected_size" ]]; then
-                        log_info "[$accession] ✓ Already exists: $filename"
-                        continue
-                    fi
-                fi
+            local md5_arg=""
+            [[ -n "$expected_md5" && "$expected_md5" != "null" ]] && md5_arg="$expected_md5"
+            local size_arg=""
+            [[ -n "$expected_size" && "$expected_size" != "null" ]] && size_arg="$expected_size"
+            local key="${run_acc}:${filename}"
+
+            # Skip-by-default: verified copy already on disk.
+            if downloaders_common::already_have "$output_file" "$md5_arg" "$size_arg"; then
+                log_info "[$accession] ✓ already present: $filename"
+                manifest::record_run_only "$key" "$(jq -n --arg p "$output_file" \
+                    '{type:"fastq", source:"ena", status:"skipped", files:[{path:$p}]}')"
+                has_files=true
+                continue
             fi
 
             size_display="Unknown"
-            if [[ -n "$expected_size" && "$expected_size" != "null" ]]; then
-                size_display=$(numfmt --to=iec-i --suffix=B "$expected_size" 2>/dev/null || echo "${expected_size}B")
-            fi
-
+            [[ -n "$size_arg" ]] && size_display=$(numfmt --to=iec-i --suffix=B "$size_arg" 2>/dev/null || echo "${size_arg}B")
             log_info "[$accession] Downloading: $filename (Size: $size_display)"
 
-            if wget -c -q --show-progress -O "$output_file" "$ftp_url" 2>&1; then
-                log_info "[$accession] ✓ Downloaded: $filename"
-
-                # MD5 verification
-                if [[ -n "$expected_md5" && "$expected_md5" != "null" ]]; then
-                    log_info "[$accession] Verifying MD5 checksum..."
-                    actual_md5=$(md5sum "$output_file" | awk '{print $1}')
-
-                    if [[ "$actual_md5" == "$expected_md5" ]]; then
-                        log_info "[$accession] ✓ Checksum verified"
-                    else
-                        log_error "[$accession] ✗ Checksum mismatch for $filename"
-                        log_error "[$accession]   Expected: $expected_md5"
-                        log_error "[$accession]   Got:      $actual_md5"
-                        download_failed=true
-                    fi
-                fi
-
-                # Size verification
-                if [[ -n "$expected_size" && "$expected_size" != "null" ]]; then
-                    actual_size=$(stat -c%s "$output_file" 2>/dev/null || stat -f%z "$output_file" 2>/dev/null)
-
-                    if [[ "$actual_size" == "$expected_size" ]]; then
-                        log_info "[$accession] ✓ File size verified"
-                    else
-                        log_warning "[$accession] ⚠ File size mismatch (expected: $expected_size, got: $actual_size)"
-                    fi
-                fi
+            if downloaders_common::atomic_fetch "$ftp_url" "$output_file" "$md5_arg"; then
+                log_info "[$accession] ✓ downloaded + verified: $filename"
+                manifest::record "$key" "$(jq -n \
+                    --arg p "$output_file" --arg u "$ftp_url" \
+                    --arg md5 "${LAST_FETCH_MD5:-}" --argjson bytes "${LAST_FETCH_BYTES:-0}" \
+                    '{type:"fastq", source:"ena", source_url:$u, status:"downloaded",
+                      files:[{path:$p, bytes:$bytes, md5:$md5}]}')"
             else
-                log_error "[$accession] ✗ Failed to download $filename"
+                log_error "[$accession] ✗ failed to download $filename"
+                manifest::record "$key" "$(jq -n --arg p "$output_file" \
+                    '{type:"fastq", source:"ena", status:"failed", files:[{path:$p}]}')"
                 download_failed=true
             fi
         done
@@ -266,7 +248,11 @@ EOF
     export OUTPUT_DIR="$output_dir"
     export TEMP_DIR="$temp_dir"
     export -f downloaders_ena_download::download_ena_worker downloaders_sra_download::validate_sra_accession
-    export -f log_info log_error log_warning 2>/dev/null || true
+    export -f log_info log_error log_warning log_success 2>/dev/null || true
+    export -f downloaders_common::already_have downloaders_common::atomic_fetch \
+              downloaders_common::md5 downloaders_common::_bytes \
+              manifest::record manifest::record_run_only manifest::_record_locked \
+              manifest::_with_lock manifest::get manifest::stored_md5 manifest::is_done 2>/dev/null || true
 
     # Check if GNU parallel is available
     if command -v parallel &> /dev/null; then
@@ -279,6 +265,13 @@ EOF
                      --keep-order \
                      --env OUTPUT_DIR \
                      --env TEMP_DIR \
+                     --env LOCKFILE \
+                     --env MANIFEST_RUN \
+                     --env MANIFEST_CMD \
+                     --env MANIFEST_STARTED \
+                     --env FORCE \
+                     --env NO_COLOR \
+                     --env QUIET \
                      downloaders_ena_download::download_ena_worker {} "$output_dir" "$temp_dir"
         
         local exit_code=$?
@@ -368,15 +361,14 @@ EOF
     
     log_info "Total: $total | Success: $success_count | Failed: $fail_count"
 
-    if [[ $exit_code -ne 0 ]]; then
-        log_warning ""
+    if [[ $fail_count -gt 0 ]]; then
         log_warning "Some downloads failed. Try alternative methods:"
         log_info "  1. seqfetcher download --sra-method fasterq --sra-accession-file runs.txt"
         log_info "  2. seqfetcher download --sra-method prefetch --sra-accession-file runs.txt"
         log_info "  3. seqfetcher download --sra-method parallel --sra-accession-file runs.txt"
-        return 1
+    else
+        log_info "All ENA downloads complete!"
     fi
 
-    log_info "All ENA downloads complete!"
-    return 0
+    downloaders_common::batch_exit_code "$success_count" "$fail_count"
 }

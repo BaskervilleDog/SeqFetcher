@@ -20,30 +20,18 @@ downloaders_sra::run_sra_download() {
 
     fi
 
-    export THREADS
+    export THREADS FORCE
 
+    local rc=0
     case "$SRA_METHOD" in
-
-        fasterq)
-            downloaders_sra_download::download_sra_fasterq "$INPUT_FILE"
-            ;;
-
-        prefetch)
-            downloaders_sra_download::download_sra_prefetch "$INPUT_FILE"
-            ;;
-
-        parallel)
-            downloaders_sra_download::download_parallel_fastq "$INPUT_FILE"
-            ;;
-
-        ena)
-            downloaders_ena_download::download_ena "$INPUT_FILE"
-            ;;
-
+        fasterq)  downloaders_sra_download::download_sra_fasterq   "$INPUT_FILE" || rc=$? ;;
+        prefetch) downloaders_sra_download::download_sra_prefetch  "$INPUT_FILE" || rc=$? ;;
+        parallel) downloaders_sra_download::download_parallel_fastq "$INPUT_FILE" || rc=$? ;;
+        ena)      downloaders_ena_download::download_ena           "$INPUT_FILE" || rc=$? ;;
+        *)        log_error "Unknown SRA method: $SRA_METHOD"; rc="${EX_USAGE:-2}" ;;
     esac
 
-    [[ -n "${tmp_sra:-}" ]] &&
-        rm -f "$tmp_sra"
-
+    [[ -n "${tmp_sra:-}" ]] && rm -f "$tmp_sra"
     downloaders_common::cleanup_temp
+    return "$rc"
 }

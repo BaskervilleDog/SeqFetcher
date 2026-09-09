@@ -18,6 +18,10 @@
 
 
 
+# Single source of truth for the version string (shown in --version, the
+# help banner, and recorded in seqfetcher.lock.json).
+SEQFETCHER_VERSION="1.1.0"
+
 # =====================================
 # General defaults
 # =====================================
@@ -28,6 +32,12 @@ OUTPUT_FILE=""
 TEMP_DIR="temp_downloads"
 PARALLEL_JOBS=4
 THREADS=4
+
+# --- global behaviour flags (set by the pre-parse in seqfetcher.sh) ---
+JSON_OUTPUT=false    # --json      : emit a machine-readable object on stdout
+QUIET=false          # --quiet/-q  : silence [INFO]/[STEP]/[SUCCESS] on stderr
+FORCE=false          # --force     : re-download even if the lockfile has it
+REQUIRE_PINNED=false # --require-pinned : refuse sources that resolve "latest"
 
 # =====================================
 # Search

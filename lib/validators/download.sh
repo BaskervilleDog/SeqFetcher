@@ -38,7 +38,7 @@ validators_download::validate_download_inputs() {
 
         *)
             log_error "Unknown download type: $DOWNLOAD_TYPE"
-            exit 1
+            return "${EX_USAGE:-2}"
             ;;
 
     esac

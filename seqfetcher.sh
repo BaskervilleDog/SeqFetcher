@@ -12,6 +12,7 @@ BASE_DIR="$(dirname "$SCRIPT_PATH")"
 source "$BASE_DIR/lib/config.sh"
 source "$BASE_DIR/lib/logging.sh"
 source "$BASE_DIR/lib/validation.sh"
+source "$BASE_DIR/lib/manifest.sh"
 
 # Commands
 
@@ -35,20 +36,33 @@ done
 # Help
 #==============================================================
 show_help() {
-    cat <<'EOF'
+    sed "s/__SEQFETCHER_VERSION__/${SEQFETCHER_VERSION:-1.1.0}/" <<'EOF'
 ╔════════════════════════════════════════════════════════════════════════════╗
-║                            SeqFetcher v1.0                                 ║
+║                       SeqFetcher __SEQFETCHER_VERSION__                     ║
 ║              Unified Sequence Retrieval from Multiple Databases            ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 
 USAGE
-    seqfetcher <command> [options]
+    seqfetcher [global options] <command> [options]
 
 COMMANDS
     search        Search for genome assemblies in NCBI
     download      Download sequences from various databases
     geo-srr       Extract SRA run accessions from GEO series
     bp-srr        Extract SRA run accessions from BioProjects
+
+GLOBAL OPTIONS (before the command)
+    --json                Emit a machine-readable result object on stdout
+                          (all logs go to stderr - `... --json 2>/dev/null`)
+    --quiet, -q           Silence [INFO]/[STEP]/[SUCCESS] progress
+    --no-color            Disable ANSI colour
+    --force               Re-download even if the lockfile already has it
+    --require-pinned      Refuse a source that would resolve to "latest"
+    --version             Print the version and exit
+
+EXIT CODES
+    0 ok   2 usage   3 missing dependency   4 not found
+    5 network   6 checksum mismatch   7 partial (some batch items failed)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -347,44 +361,71 @@ EOF
 
 
 #==============================================================
+# Global option pre-parse
+#
+# Options that apply to every command are consumed here (in any position)
+# and the rest is handed to the per-command parser untouched.
+#==============================================================
+parse_global_options() {
+    GLOBAL_REMAINING=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --json)          JSON_OUTPUT=true ;;
+            --quiet|-q)      QUIET=true ;;
+            --no-color)      NO_COLOR=1 ;;
+            --force)         FORCE=true ;;
+            --require-pinned) REQUIRE_PINNED=true ;;
+            --version)       echo "seqfetcher ${SEQFETCHER_VERSION:-unknown}"; exit "${EX_OK:-0}" ;;
+            *)               GLOBAL_REMAINING+=("$1") ;;
+        esac
+        shift
+    done
+    # colour depends on NO_COLOR, which we may have just set - re-source logging
+    source "$BASE_DIR/lib/logging.sh"
+}
+
+#==============================================================
 # Main entry
 #==============================================================
 main() {
-    local cmd="${1:-}"
-
     if [[ "${1:-}" == "--uninstall" ]]; then
-    uninstall_seqfetcher
-    exit 0
+        uninstall_seqfetcher
+        exit 0
     fi
+
+    parse_global_options "$@"
+    set -- "${GLOBAL_REMAINING[@]}"
+
+    local cmd="${1:-}"
+    local rc=0
 
     case "$cmd" in
         ""|-h|--help)
             show_help
-            exit 0
+            exit "${EX_OK:-0}"
             ;;
         search)
             shift
-            commands_search::run_search "$@"
+            commands_search::run_search "$@" || rc=$?
             ;;
         download)
             shift
-            commands_download::run_download "$@"
+            commands_download::run_download "$@" || rc=$?
             ;;
         geo-srr)
             shift
-            commands_geo_srr::run_geo_srr "$@"
+            commands_geo_srr::run_geo_srr "$@" || rc=$?
             ;;
         bp-srr)
             shift
-            commands_bioproject_srr::run_bioproject_srr "$@"
+            commands_bioproject_srr::run_bioproject_srr "$@" || rc=$?
             ;;
         *)
-            echo "Unknown command: $cmd" >&2
-            echo >&2
-            show_help
-            exit 1
+            die "Unknown command: $cmd" "${EX_USAGE:-2}"
             ;;
     esac
+
+    exit "$rc"
 }
 
 main "$@"

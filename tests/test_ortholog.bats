@@ -7,6 +7,14 @@
 
 load 'test_helper'
 
+# Bats 0.4 (the bioconda build) does not set BATS_TEST_TMPDIR - provide one.
+setup() {
+    BATS_TEST_TMPDIR="$(mktemp -d "${BATS_TMPDIR:-/tmp}/sf-ortholog.XXXXXX")"
+}
+teardown() {
+    [ -n "$BATS_TEST_TMPDIR" ] && rm -rf "$BATS_TEST_TMPDIR"
+}
+
 # --- detect_accession_type -----------------------------------------------
 
 @test "detect_accession_type recognizes RefSeq protein prefixes" {

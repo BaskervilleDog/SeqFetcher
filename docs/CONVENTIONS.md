@@ -102,6 +102,47 @@ since no caller checked the return value, but not a contract you can write
 a "validation passes" test against. Each now ends with an explicit
 `return 0`.
 
+## Output contract: stdout = payload, stderr = everything else
+
+Every `log_*` function in `lib/logging.sh` writes to **stderr**. stdout
+carries only a command's machine-readable payload - the ranked table
+(`search`), the SRR list (`geo-srr`/`bp-srr`), or the `--json` object.
+A downloader that shells its own stdout into `$(...)` (e.g.
+`lib/downloaders/ncbi_search.sh`, `ortholog_download.sh`) depends on this;
+new human-readable output must go to stderr or be gated behind
+`[[ "${JSON_OUTPUT:-false}" != true ]]`.
+
+## Exit codes: `lib/validation.sh`
+
+`lib/validation.sh` defines the `EX_*` constants (`EX_USAGE=2`,
+`EX_DEPENDENCY=3`, `EX_NETWORK=5`, `EX_INTEGRITY=6`, `EX_PARTIAL=7`, …) and
+`die <msg> [code]` (in `lib/logging.sh`). Validators `return "${EX_USAGE:-2}"`
+(not `exit`) so the command layer can still emit a `--json` error object;
+each command's `run_*` maps the downloader return onto one of these codes.
+Batch downloaders end with `downloaders_common::batch_exit_code <ok> <fail>`.
+Never write a bare `exit 1` in a validator, parser, or downloader.
+
+## Provenance: `lib/manifest.sh` + `seqfetcher.lock.json`
+
+`lib/manifest.sh` (a new core file, sourced right after `lib/logging.sh`
+and added to `tests/test_helper.bash`) owns the merged lockfile at
+`<outdir>/seqfetcher.lock.json`. Each `commands_*::run_*` calls
+`manifest::init "$OUTDIR"` / `manifest::set_context` up front and
+`manifest::add_run` + `manifest::emit` at the end. A downloader records each
+artifact with `manifest::record <key> <json>` on success/failure and
+`manifest::record_run_only` for a skip (never downgrade a recorded
+`downloaded` entry). All `manifest::*` are `export -f`'d for `parallel`
+workers; the ENA path also `--env`s `LOCKFILE`/`MANIFEST_RUN`/`FORCE`.
+
+## Atomic + idempotent downloads: `lib/downloaders/common.sh`
+
+New helpers: `already_have` (skip-by-default gate; honours `FORCE`),
+`atomic_fetch <url> <dest> [md5]` (→ `<dest>.part` → verify → rename; sets
+`LAST_FETCH_MD5`/`LAST_FETCH_BYTES`), and `new_stage` + `promote` for
+`datasets` archives (extract in a staging dir, move into place in one step).
+A new download path should use these rather than writing to the final path
+directly.
+
 ## Dependency checking: `scripts/check_deps.sh`
 
 No package manager, no lockfile in the language-ecosystem sense -

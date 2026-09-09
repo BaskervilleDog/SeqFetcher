@@ -24,13 +24,15 @@ downloaders_ortholog::run_ortholog_download() {
 
     fi
 
+    local rc=0
     downloaders_ortholog_download::download_orthologs_batch \
         "$input" \
         "$OUTDIR" \
-        "$PARALLEL_JOBS"
+        "$PARALLEL_JOBS" || rc=$?
 
     [[ "$ORTHOLOG_USER" == true ]] &&
         rm -f "$tmp"
 
     downloaders_common::cleanup_temp
+    return "$rc"
 }

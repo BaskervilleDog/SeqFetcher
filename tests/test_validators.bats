@@ -13,7 +13,7 @@ setup() {
 
 @test "validators_search::validate_search_inputs fails without --organism" {
     run validators_search::validate_search_inputs
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"Missing --organism"* ]]
 }
 
@@ -27,7 +27,7 @@ setup() {
     ORGANISM="E. coli"
     TOP_N="lots"
     run validators_search::validate_search_inputs
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"Invalid --top"* ]]
 }
 
@@ -35,7 +35,7 @@ setup() {
     ORGANISM="E. coli"
     TOP_N=0
     run validators_search::validate_search_inputs
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "validators_search::validate_search_inputs accepts a positive --top" {
@@ -56,13 +56,13 @@ setup() {
 
 @test "validators_assembly::validate_assembly_download fails without --accession/--accession-file" {
     run validators_assembly::validate_assembly_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "validators_assembly::validate_assembly_download fails when accession file doesn't exist" {
     ACCESSION_FILE="$BATS_TEST_TMPDIR/nope.txt"
     run validators_assembly::validate_assembly_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"not found"* ]]
 }
 
@@ -76,7 +76,7 @@ setup() {
 
 @test "validators_gene::validate_gene_download fails without --gene-id/--gene-file" {
     run validators_gene::validate_gene_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "validators_gene::validate_gene_download passes with GENE_ID_USER set" {
@@ -89,14 +89,14 @@ setup() {
 
 @test "validators_ortholog::validate_ortholog_download fails without --ortholog/--ortholog-file" {
     run validators_ortholog::validate_ortholog_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "validators_ortholog::validate_ortholog_download fails when ortholog file doesn't exist" {
     ORTHOLOG_FILE_USER=true
     ORTHOLOG_FILE="$BATS_TEST_TMPDIR/nope.txt"
     run validators_ortholog::validate_ortholog_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"not found"* ]]
 }
 
@@ -110,14 +110,14 @@ setup() {
 
 @test "validators_sra::validate_sra_download fails without --sra-method" {
     run validators_sra::validate_sra_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"--sra-method"* ]]
 }
 
 @test "validators_sra::validate_sra_download fails without an accession once method is set" {
     SRA_METHOD="fasterq"
     run validators_sra::validate_sra_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"--sra-accession"* ]]
 }
 
@@ -132,24 +132,24 @@ setup() {
 
 @test "validators_geo::validate_geo_download fails without --geo" {
     run validators_geo::validate_geo_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "validators_bioproject::validate_bioproject_srr fails without --bioproject" {
     run validators_bioproject::validate_bioproject_srr
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 # --- validators_ensembl / transcriptome / proteome ----------------------
 
 @test "validators_ensembl::validate_ensembl_download requires --species and --type" {
     run validators_ensembl::validate_ensembl_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"--species"* ]]
 
     ENSEMBL_SPECIES="homo_sapiens"
     run validators_ensembl::validate_ensembl_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"--type"* ]]
 
     ENSEMBL_TYPE="cdna"
@@ -159,7 +159,7 @@ setup() {
 
 @test "validators_transcriptome::validate_transcriptome_download requires --assembly or --species" {
     run validators_transcriptome::validate_transcriptome_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 
     TRANSCRIPTOME_SPECIES="homo_sapiens"
     run validators_transcriptome::validate_transcriptome_download
@@ -168,7 +168,7 @@ setup() {
 
 @test "validators_proteome::validate_proteome_download requires --assembly or --species" {
     run validators_proteome::validate_proteome_download
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 
     PROTEOME_ASSEMBLY="GCF_000005845.2"
     run validators_proteome::validate_proteome_download
@@ -194,6 +194,6 @@ setup() {
 @test "validators_download::validate_download_inputs rejects an unknown DOWNLOAD_TYPE" {
     DOWNLOAD_TYPE="not-a-real-type"
     run validators_download::validate_download_inputs
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     [[ "$output" == *"Unknown download type"* ]]
 }

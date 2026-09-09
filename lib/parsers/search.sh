@@ -11,7 +11,7 @@ parsers_search::parse_search_arguments() {
             --interactive|-i) INTERACTIVE=true; shift ;;
             --extract-genes) EXTRACT_GENES=true; shift ;;
             --help|-h) show_help; exit 0 ;;
-            *) log_error "Unknown option for search: $1"; show_help; exit 1 ;;
+            *) log_error "Unknown option for search: $1"; show_help; exit "${EX_USAGE:-2}" ;;
         esac
     done
 }

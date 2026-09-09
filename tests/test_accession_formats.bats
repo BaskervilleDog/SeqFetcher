@@ -18,9 +18,9 @@ load 'test_helper'
 
 @test "rejects an empty or malformed BioProject accession" {
     run downloaders_bioproject_download::validate_bioproject_accession ""
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     run downloaders_bioproject_download::validate_bioproject_accession "PRJXX12345"
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 # --- downloaders_geo_download::validate_geo_accession --------------------
@@ -32,9 +32,9 @@ load 'test_helper'
 
 @test "rejects an empty or malformed GEO accession" {
     run downloaders_geo_download::validate_geo_accession ""
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
     run downloaders_geo_download::validate_geo_accession "GSM12345"
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 # --- downloaders_sra_download::validate_sra_accession ---------------------

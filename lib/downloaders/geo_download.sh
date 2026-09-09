@@ -27,15 +27,15 @@ downloaders_geo_download::validate_geo_accession() {
     local accession="$1"
     
     if [[ -z "$accession" ]]; then
-        log_error "GEO accession cannot be empty"
-        return 1
+        log_error "GEO accession cannot be empty (pass --geo GSEXXXXX)"
+        return "${EX_USAGE:-2}"
     fi
-    
+
     # Validate GEO accession format (GSE followed by numbers)
     if [[ ! "$accession" =~ ^GSE[0-9]+$ ]]; then
         log_error "Invalid GEO accession format: $accession"
         log_error "Expected format: GSEXXXXX (e.g., GSE280953)"
-        return 1
+        return "${EX_USAGE:-2}"
     fi
     
     return 0
@@ -191,7 +191,7 @@ downloaders_geo_download::create_srr_list_from_geo() {
 
     downloaders_common::check_command curl    || return 1
     downloaders_common::check_command python3 || return 1
-    downloaders_geo_download::validate_geo_accession "$geo_accession" || return 1
+    downloaders_geo_download::validate_geo_accession "$geo_accession" || return $?
 
     mkdir -p "${TEMP_DIR}"
 
@@ -504,6 +504,10 @@ PYEOF
     mkdir -p "$(dirname "$output_file")"
     cp "$srr_file" "$output_file"
     cp "$meta_file" "$meta_out"
+
+    # Expose resolved paths so commands_geo_srr::emit_json can report them.
+    GEO_SRR_OUT="$output_file"
+    GEO_SRR_META="$meta_out"
 
     log_info "✓ Found $(wc -l < "$output_file") SRR/ERR/DRR accession(s)"
     log_info "Saved run list : $output_file"

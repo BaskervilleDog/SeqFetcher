@@ -76,8 +76,7 @@ downloaders_ncbi_search::search_metadata_by_organism() {
     log_info "Species: $species_name ($common_name)"
     log_info "Taxonomy ID: $tax_id"
     log_info "Assemblies in NCBI: $assembly_count"
-    echo
-    
+
     # Write TSV table to file
     if [[ -n "$output_file" ]]; then
         mkdir -p -- "$(dirname -- "$output_file")"
@@ -88,7 +87,9 @@ downloaders_ncbi_search::search_metadata_by_organism() {
         log_info "Taxonomy table written to: $output_file"
     fi
     
-    # Pretty table display
+    # Pretty table display - human decoration, so stderr; skipped under --json.
+    if [[ "${JSON_OUTPUT:-false}" != true ]]; then
+    {
     echo "TAXONOMY CLASSIFICATION:"
     printf "%-20s %s\n" "Domain:" "$(cut -f4 "$tmp_tsv")"
     printf "%-20s %s\n" "Kingdom:" "$(cut -f5 "$tmp_tsv")"
@@ -99,7 +100,7 @@ downloaders_ncbi_search::search_metadata_by_organism() {
     printf "%-20s %s\n" "Genus:" "$(cut -f10 "$tmp_tsv")"
     printf "%-20s %s\n" "Species:" "$(cut -f1 "$tmp_tsv")"
     echo
-    
+
     echo "SEQUENCE COUNTS:"
     printf "%-20s %s\n" "Assemblies:" "$(cut -f11 "$tmp_tsv")"
     printf "%-20s %s\n" "Genes:" "$(cut -f12 "$tmp_tsv")"
@@ -109,7 +110,9 @@ downloaders_ncbi_search::search_metadata_by_organism() {
     printf "%-20s %s\n" "ncRNA:" "$(cut -f16 "$tmp_tsv")"
     printf "%-20s %s\n" "miscRNA:" "$(cut -f17 "$tmp_tsv")"
     echo
-    
+    } >&2
+    fi
+
     # Cleanup
     rm -f "$tmp_json" "$tmp_tsv"
 }
@@ -223,8 +226,7 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
     log_info "Found $total_found assemblies in NCBI"
     log_info "Showing top $shown assemblies (ranked: GCF + reference first)"
     log_info "Stats: RefSeq(GCF)=$gcf_count, Reference genomes=$ref_count, Chromosome-level=$chr_count"
-    echo
-    
+
     # Write TSV table to file
     if [[ -n "$output_file" ]]; then
     mkdir -p -- "$(dirname -- "$output_file")"
@@ -241,13 +243,17 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
 
     fi
     
-    # Pretty table display
+    # Pretty table display - human decoration on stderr; skipped under --json
+    # (the machine payload is emitted by commands_search::emit_json from the
+    # TSV instead).
     #
     # Every fixed-width column gets a matching `.N` precision (not just a
     # `-N` minimum width) so a value longer than its column - e.g. LEVEL's
     # "Complete Genome" (16 chars) or REFSEQ_CATEGORY's "representative
     # genome" (21 chars) - is truncated instead of overflowing into the
     # next column and breaking alignment for every row after it.
+    if [[ "${JSON_OUTPUT:-false}" != true ]]; then
+    {
     printf "%-4s %-18.18s %-30.30s %-16.16s %-12.12s %-22.22s %s\n" \
         "ID" "ACCESSION" "ORGANISM" "LEVEL" "STATUS" "REFSEQ_CATEGORY" "NAME"
     printf "%-4s %-18.18s %-30.30s %-16.16s %-12.12s %-22.22s %s\n" \
@@ -258,7 +264,9 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
         $1, $2, $3, $4, $5, $6, $7
     }'
     echo
-    
+    } >&2
+    fi
+
     # Cleanup
     rm -f "$tmp_json" "$tmp_tsv"
 }
@@ -371,10 +379,14 @@ downloaders_ncbi_search::extract_gene_ids_from_reference() {
     log_info "Full metadata saved to: $metadata_file"
     log_info "═══════════════════════════════════════"
 
-    log_info "Preview (first 10 Entrez IDs):"
-    head -n10 "$output_file" | nl -w2 -s". "
-    [[ $gene_count -gt 10 ]] && echo "... and $((gene_count - 10)) more"
-    echo
+    if [[ "${JSON_OUTPUT:-false}" != true ]]; then
+    {
+        log_info "Preview (first 10 Entrez IDs):"
+        head -n10 "$output_file" | nl -w2 -s". "
+        [[ $gene_count -gt 10 ]] && echo "... and $((gene_count - 10)) more"
+        echo
+    } >&2
+    fi
 
     rm -f "$tmp_json"
     rm -rf "$tmp_dir"

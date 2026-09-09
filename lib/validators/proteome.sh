@@ -6,7 +6,7 @@ validators_proteome::validate_proteome_download() {
        -z "$PROTEOME_SPECIES" ]] &&
     {
         log_error "Proteome requires --assembly or --species"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     return 0

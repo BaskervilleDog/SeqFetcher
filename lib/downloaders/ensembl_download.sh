@@ -96,7 +96,11 @@ EOF
     if [[ -n "${ENSEMBL_RELEASE:-}" ]]; then
         release="$ENSEMBL_RELEASE"
     else
-        release=$(downloaders_ensembl_download::get_latest_ensembl_release "$species_dir" | tr -d '\r\n[:space:]') || return 1
+        if [[ "${REQUIRE_PINNED:-false}" == true ]]; then
+            die "Ensembl release not pinned - pass --release <n> (or drop --require-pinned)" "${EX_USAGE:-2}"
+        fi
+        release=$(downloaders_ensembl_download::get_latest_ensembl_release "$species_dir" | tr -d '\r\n[:space:]') || return "${EX_NETWORK:-5}"
+        log_warning "Ensembl release not pinned; resolved to $release - pass --release $release to reproduce this dataset"
     fi
 
     local species_prefix
@@ -146,22 +150,31 @@ EOF
     }
 
     # --------------------------------------------------
-    # Download
+    # Download (atomic + recorded)
     # --------------------------------------------------
     local url="${base_url}/${file_name}"
     local out_file="${output_dir}/${file_name}"
+    local key="${species_dir}:${fasta_type}:ensembl-${release}"
 
     log_info "Downloading: $file_name"
     log_info "Final URL: $url"
 
-    [[ -f "$out_file" ]] && {
-        log_info "File already exists, skipping: $out_file"
+    if downloaders_common::already_have "$out_file" "$(manifest::stored_md5 "$key")"; then
+        log_info "Already present - skipping: $out_file (use --force to refetch)"
+        manifest::record_run_only "$key" "$(jq -n --arg p "$out_file" --arg r "$release" \
+            '{type:"ensembl-fasta", source:"ensembl", db_release:("Ensembl " + $r), status:"skipped", files:[{path:$p}]}')"
         return 0
-    }
+    fi
 
-    downloaders_geo_download::retry_command curl -L -o "$out_file" "$url" || return 1
+    downloaders_common::atomic_fetch "$url" "$out_file" || return $?
 
-    log_info "✓ Downloaded ${fasta_type} FASTA from Ensembl"
+    log_success "Downloaded ${fasta_type} FASTA from Ensembl (release $release)"
+    manifest::record "$key" "$(jq -n \
+        --arg p "$out_file" --arg u "$url" --arg r "$release" \
+        --arg md5 "${LAST_FETCH_MD5:-}" --argjson bytes "${LAST_FETCH_BYTES:-0}" \
+        '{type:"ensembl-fasta", source:"ensembl", source_url:$u,
+          db_release:("Ensembl " + $r), status:"downloaded",
+          files:[{path:$p, bytes:$bytes, md5:$md5}]}')"
     return 0
 }
 
@@ -219,25 +232,35 @@ EOF
                 return 1
             }
 
-            downloaders_common::check_command datasets || return 1
+            downloaders_common::check_command datasets || return "${EX_DEPENDENCY:-3}"
 
             local output_dir="${OUTPUT_DIR}/transcriptomes/${accession}"
-            mkdir -p "$output_dir"
-            local zip_file="${output_dir}/${accession}_transcriptome.zip"
+            local key="${accession}:transcriptome"
 
-            log_info "Using NCBI datasets for $accession..."
-
-            if downloaders_geo_download::retry_command datasets download genome accession "$accession" \
-                --include rna,gff3,gbff,gtf,seq-report \
-                --filename "$zip_file"; then
-
-                unzip -q "$zip_file" -d "$output_dir" || return 1
-                log_info "✓ Transcriptome downloaded from NCBI"
+            if [[ "${FORCE:-false}" != true ]] && manifest::is_done "$key" && [[ -d "$output_dir" ]]; then
+                log_info "[$accession] transcriptome already present - skipping"
+                manifest::record_run_only "$key" "$(jq -n --arg d "$output_dir" '{accession:"'"$accession"'", type:"transcriptome", source:"ncbi-datasets", status:"skipped", files:[{path:$d}]}')"
                 return 0
             fi
 
+            log_info "Using NCBI datasets for $accession..."
+            local stage; stage="$(downloaders_common::new_stage)" || return "${EX_ERROR:-1}"
+
+            if downloaders_geo_download::retry_command datasets download genome accession "$accession" \
+                --include rna,gff3,gbff,gtf,seq-report \
+                --filename "$stage/data.zip" \
+               && unzip -q "$stage/data.zip" -d "$stage/extracted" 2>/dev/null \
+               && { rm -f "$stage/data.zip"; downloaders_common::promote "$stage/extracted" "$output_dir"; }; then
+                rm -rf "$stage"
+                log_success "Transcriptome downloaded from NCBI"
+                downloaders_ncbi_download::_record_dir "$key" "$accession" "transcriptome" "ncbi-datasets" "$output_dir"
+                return 0
+            fi
+
+            rm -rf "$stage"
             log_error "NCBI transcriptome unavailable for $accession"
-            return 1
+            manifest::record "$key" "$(jq -n '{accession:"'"$accession"'", type:"transcriptome", source:"ncbi-datasets", status:"failed"}')"
+            return "${EX_NETWORK:-5}"
             ;;
 
         ensembl)
@@ -326,25 +349,35 @@ EOF
                 return 1
             }
 
-            downloaders_common::check_command datasets || return 1
+            downloaders_common::check_command datasets || return "${EX_DEPENDENCY:-3}"
 
             local output_dir="${OUTPUT_DIR}/proteomes/${accession}"
-            mkdir -p "$output_dir"
-            local zip_file="${output_dir}/${accession}_proteome.zip"
+            local key="${accession}:proteome"
 
-            log_info "Using NCBI datasets for $accession..."
-
-            if downloaders_geo_download::retry_command datasets download genome accession "$accession" \
-                --include protein,cds,seq-report \
-                --filename "$zip_file"; then
-
-                unzip -q "$zip_file" -d "$output_dir" || return 1
-                log_info "✓ Proteome downloaded from NCBI"
+            if [[ "${FORCE:-false}" != true ]] && manifest::is_done "$key" && [[ -d "$output_dir" ]]; then
+                log_info "[$accession] proteome already present - skipping"
+                manifest::record_run_only "$key" "$(jq -n --arg d "$output_dir" '{accession:"'"$accession"'", type:"proteome", source:"ncbi-datasets", status:"skipped", files:[{path:$d}]}')"
                 return 0
             fi
 
+            log_info "Using NCBI datasets for $accession..."
+            local stage; stage="$(downloaders_common::new_stage)" || return "${EX_ERROR:-1}"
+
+            if downloaders_geo_download::retry_command datasets download genome accession "$accession" \
+                --include protein,cds,seq-report \
+                --filename "$stage/data.zip" \
+               && unzip -q "$stage/data.zip" -d "$stage/extracted" 2>/dev/null \
+               && { rm -f "$stage/data.zip"; downloaders_common::promote "$stage/extracted" "$output_dir"; }; then
+                rm -rf "$stage"
+                log_success "Proteome downloaded from NCBI"
+                downloaders_ncbi_download::_record_dir "$key" "$accession" "proteome" "ncbi-datasets" "$output_dir"
+                return 0
+            fi
+
+            rm -rf "$stage"
             log_error "NCBI proteome unavailable for $accession"
-            return 1
+            manifest::record "$key" "$(jq -n '{accession:"'"$accession"'", type:"proteome", source:"ncbi-datasets", status:"failed"}')"
+            return "${EX_NETWORK:-5}"
             ;;
 
         ensembl)

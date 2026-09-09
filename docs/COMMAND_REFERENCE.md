@@ -5,6 +5,11 @@ Full usage guide for every SeqFetcher command. For installation and a
 
 ## Table of Contents
 
+- [Global Options](#global-options)
+- [Exit Codes](#exit-codes)
+- [Machine-Readable Output (`--json`)](#machine-readable-output---json)
+- [Lockfile (`seqfetcher.lock.json`)](#lockfile-seqfetcherlockjson)
+- [Idempotency & Resume](#idempotency--resume)
 - [Output Layout](#output-layout)
 - [Searching Genomes](#searching-genomes)
 - [Downloading Assemblies](#downloading-assemblies)
@@ -18,6 +23,119 @@ Full usage guide for every SeqFetcher command. For installation and a
 - [Common Workflows](#common-workflows)
 - [File Formats](#file-formats)
 - [Full Option Reference](#full-option-reference)
+
+---
+
+## Global Options
+
+These go **before** the command (`seqfetcher [global options] <command> …`)
+and apply to every command:
+
+| Option | Effect |
+|--------|--------|
+| `--json` | Emit one machine-readable result object on **stdout**. All logs go to stderr, so `seqfetcher --json … 2>/dev/null \| jq .` yields clean JSON. |
+| `--quiet`, `-q` | Silence `[INFO]`/`[STEP]`/`[SUCCESS]`; warnings and errors still print. |
+| `--no-color` | Disable ANSI colour (also honoured via the `NO_COLOR` env var and auto-off when stderr is not a TTY). |
+| `--force` | Re-download even when the lockfile already records the artifact as complete. |
+| `--require-pinned` | Refuse any source that would resolve to "latest" (currently: Ensembl without `--release`). Exits `2`. |
+| `--version` | Print the version and exit. |
+
+**stdout vs stderr:** stdout carries only the payload — the ranked table
+(`search`), the run list (`geo-srr`/`bp-srr`), or the `--json` object.
+Everything else (progress, warnings, errors, summaries) is on stderr.
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success |
+| `1` | Unexpected / internal error |
+| `2` | Usage error - bad flag, missing required option, unknown command |
+| `3` | A required external tool is missing (`datasets`, `jq`, …) |
+| `4` | Valid query, but the upstream source has no data |
+| `5` | Network / API / download failure after retries |
+| `6` | Checksum or size mismatch on a downloaded file |
+| `7` | Batch partial - some items downloaded, some failed |
+
+A batch (`--accession-file`, `--sra-accession-file`, …) exits `7` when it
+finishes with a mix of successes and failures, `5` when everything failed,
+`0` when everything succeeded (or was already present).
+
+## Machine-Readable Output (`--json`)
+
+`download` emits:
+
+```json
+{
+  "seqfetcher_version": "1.1.0",
+  "command": "download",
+  "status": "success | partial | error",
+  "exit_code": 0,
+  "outdir": "downloads",
+  "lockfile": "downloads/seqfetcher.lock.json",
+  "counts": { "total": 3, "downloaded": 2, "skipped": 1, "failed": 0 },
+  "items": [
+    { "key": "GCF_000005845.2:assembly", "accession": "GCF_000005845.2",
+      "type": "assembly", "source": "ncbi-datasets", "status": "downloaded",
+      "files": [ { "path": "...", "bytes": 12345678, "md5": "..." } ] }
+  ]
+}
+```
+
+`search` emits `{ command, status, organism, count, assemblies: [...], files: {table, accessions, taxonomy} }`.
+`geo-srr` / `bp-srr` emit `{ command, status, count, runs: [...], files: {run_list, metadata_tsv} }`.
+A usage error under `--json` still prints `{ "status": "error", "exit_code": 2, "errors": [...] }`.
+
+## Lockfile (`seqfetcher.lock.json`)
+
+Every run writes a merged lockfile at `<outdir>/seqfetcher.lock.json`:
+
+```json
+{
+  "schema": 1,
+  "seqfetcher_version": "1.1.0",
+  "runs": [
+    { "command": "download", "argv": ["--accession","GCF_000005845.2"],
+      "started_at": "...", "finished_at": "...", "status": "success",
+      "exit_code": 0,
+      "tool_versions": { "seqfetcher": "1.1.0", "datasets": "18.36.0", "jq": "1.8.2", "curl": "8.22.0" } }
+  ],
+  "artifacts": {
+    "GCF_000005845.2:assembly": {
+      "accession": "GCF_000005845.2", "type": "assembly",
+      "source": "ncbi-datasets", "db_release": "Ensembl 116 | n/a",
+      "status": "downloaded", "requested_at": "...",
+      "files": [ { "path": "...", "bytes": 123, "md5": "..." } ],
+      "tool": { "datasets": "18.36.0" }
+    }
+  }
+}
+```
+
+It is the download **checkpoint**: re-running a command skips any artifact
+already recorded `downloaded` (whose file, if single-file, still matches its
+recorded checksum). Commit it alongside a pipeline for reproducibility.
+
+## Idempotency & Resume
+
+Downloads are **idempotent by default**. Re-running a `download` skips work
+that is already present and verified; a batch that partly failed retries
+only the missing items on the next run. `--force` ignores the lockfile and
+re-downloads everything.
+
+Writes are **atomic**: a file is fetched to `<name>.part` and renamed only
+after (where a checksum is available) verification; `datasets` archives are
+extracted in a staging dir under `--outdir`'s temp area and moved into place
+in one step. A killed job never leaves a half-written file or a
+half-extracted directory at the real path.
+
+### Reproducibility / release pinning
+
+- **NCBI assemblies** are version-pinned by their accession (`GCF_x.N`); the
+  `datasets` CLI version is recorded per run.
+- **Ensembl** resolves to the latest release unless you pass `--release N`.
+  An unpinned run prints a warning and records the release it resolved to;
+  `--require-pinned` turns the warning into a hard error.
 
 ---
 

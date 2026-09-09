@@ -3,41 +3,54 @@
 #
 # logging.sh is a cross-cutting utility (every other lib/**/*.sh file calls
 # into it), not one of the dir_stem::-namespaced modules - see
-# docs/CONVENTIONS.md for why it keeps its plain log_* names. These tests
-# just confirm each helper writes a recognizable, correctly-streamed
-# message rather than testing formatting byte-for-byte.
+# docs/CONVENTIONS.md for why it keeps its plain log_* names.
+#
+# Contract under test: every log_* function writes to STDERR (stdout is
+# reserved for a command's machine-readable payload); NO_COLOR / a
+# non-TTY strips ANSI; QUIET silences the informational levels only.
 
 load 'test_helper'
 
-@test "log_info writes an [INFO] line to stdout" {
-    run log_info "hello"
-    [ "$status" -eq 0 ]
-    [[ "$output" == *"[INFO]"* ]]
-    [[ "$output" == *"hello"* ]]
+@test "log_info / log_step / log_success / log_warning write to stderr, not stdout" {
+    for fn in log_info log_step log_success log_warning; do
+        on_stdout="$($fn "msg" 2>/dev/null)"
+        on_stderr="$($fn "msg" 2>&1 1>/dev/null)"
+        [ -z "$on_stdout" ]
+        [[ "$on_stderr" == *"msg"* ]]
+    done
 }
 
-@test "log_success writes a [SUCCESS] line to stdout" {
-    run log_success "done"
-    [[ "$output" == *"[SUCCESS]"* ]]
-    [[ "$output" == *"done"* ]]
-}
-
-@test "log_warning writes a [WARN] line to stdout" {
-    run log_warning "careful"
-    [[ "$output" == *"[WARN]"* ]]
-    [[ "$output" == *"careful"* ]]
-}
-
-@test "log_step writes a [STEP] banner to stdout" {
-    run log_step "starting"
-    [[ "$output" == *"[STEP]"* ]]
-    [[ "$output" == *"starting"* ]]
-}
-
-@test "log_error writes an [ERROR] line to stderr, not stdout" {
+@test "log_error writes to stderr, not stdout" {
     on_stdout="$(log_error "boom" 2>/dev/null)"
     on_stderr="$(log_error "boom" 2>&1 1>/dev/null)"
     [ -z "$on_stdout" ]
     [[ "$on_stderr" == *"[ERROR]"* ]]
     [[ "$on_stderr" == *"boom"* ]]
+}
+
+@test "colour is stripped when NO_COLOR is set" {
+    run env NO_COLOR=1 "$BASH" -c "source '$BASE_DIR/lib/logging.sh'; log_info 'plain' 2>&1"
+    [ "$status" -eq 0 ]
+    # no ESC[ sequences
+    [[ "$output" != *$'\033['* ]]
+    [[ "$output" == *"[INFO]"* ]]
+}
+
+@test "QUIET silences log_info but not log_error" {
+    quiet_info="$(QUIET=true log_info "shh" 2>&1)"
+    quiet_err="$(QUIET=true log_error "loud" 2>&1)"
+    [ -z "$quiet_info" ]
+    [[ "$quiet_err" == *"loud"* ]]
+}
+
+@test "die exits with the given code and logs the message" {
+    run "$BASH" -c "source '$BASE_DIR/lib/logging.sh'; source '$BASE_DIR/lib/validation.sh'; die 'nope' 4"
+    [ "$status" -eq 4 ]
+    [[ "$output" == *"nope"* ]]
+}
+
+@test "die under --json prints a JSON error object on stdout" {
+    run "$BASH" -c "source '$BASE_DIR/lib/logging.sh'; source '$BASE_DIR/lib/validation.sh'; JSON_OUTPUT=true die 'bad args' 2 2>/dev/null"
+    [ "$status" -eq 2 ]
+    echo "$output" | jq -e '.status == "error" and .exit_code == 2 and (.errors[0] == "bad args")'
 }

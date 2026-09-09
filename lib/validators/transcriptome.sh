@@ -6,7 +6,7 @@ validators_transcriptome::validate_transcriptome_download() {
        -z "$TRANSCRIPTOME_SPECIES" ]] &&
     {
         log_error "Transcriptome requires --assembly or --species"
-        exit 1
+        return "${EX_USAGE:-2}"
     }
 
     return 0
