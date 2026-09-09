@@ -14,6 +14,12 @@ validators_search::validate_search_inputs() {
         exit 1
     }
 
+    [[ ! "$TOP_N" =~ ^[1-9][0-9]*$ ]] &&
+    {
+        log_error "Invalid --top: $TOP_N (expected a positive integer)"
+        exit 1
+    }
+
     if [[ -z "$OUTPUT_FILE" ]]; then
         # Tables/lists, not sequence data, so they live under OUTDIR/tables/
         # rather than cluttering OUTDIR's root alongside downloaded files.

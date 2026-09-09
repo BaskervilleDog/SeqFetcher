@@ -117,7 +117,8 @@ downloaders_ncbi_search::search_metadata_by_organism() {
 downloaders_ncbi_search::search_assemblies_by_organism() {
     local organism="$1"
     local output_file="${2:-assemblies.tsv}"
-    
+    local top_n="${3:-50}"
+
     # Input validation
     [[ -z "$organism" ]] && {
         log_error "Organism name required"
@@ -213,12 +214,12 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
     ' "$tmp_json" \
     | sort -n \
     | cut -f2- \
-    | head -n 50\
+    | head -n "$top_n" \
     > "$tmp_tsv"
-    
+
     local shown
     shown=$(wc -l < "$tmp_tsv")
-    
+
     log_info "Found $total_found assemblies in NCBI"
     log_info "Showing top $shown assemblies (ranked: GCF + reference first)"
     log_info "Stats: RefSeq(GCF)=$gcf_count, Reference genomes=$ref_count, Chromosome-level=$chr_count"

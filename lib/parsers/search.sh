@@ -4,6 +4,7 @@ parsers_search::parse_search_arguments() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --organism) ORGANISM="$2"; shift 2 ;;
+            --top) TOP_N="$2"; shift 2 ;;
             --mode) MODE="$2"; shift 2 ;;
             --outdir) OUTDIR="$2"; shift 2 ;;
             --output) OUTPUT_FILE="$2"; shift 2 ;;

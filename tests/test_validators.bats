@@ -23,6 +23,28 @@ setup() {
     [ "$OUTPUT_FILE" = "${OUTDIR}/tables/assemblies.tsv" ]
 }
 
+@test "validators_search::validate_search_inputs rejects a non-numeric --top" {
+    ORGANISM="E. coli"
+    TOP_N="lots"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"Invalid --top"* ]]
+}
+
+@test "validators_search::validate_search_inputs rejects --top 0" {
+    ORGANISM="E. coli"
+    TOP_N=0
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 1 ]
+}
+
+@test "validators_search::validate_search_inputs accepts a positive --top" {
+    ORGANISM="E. coli"
+    TOP_N=200
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 0 ]
+}
+
 @test "validators_search::validate_search_inputs defaults OUTPUT_FILE to tables/gene_ids.txt when extracting genes" {
     ORGANISM="E. coli"
     EXTRACT_GENES=true

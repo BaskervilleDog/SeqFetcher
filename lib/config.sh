@@ -36,6 +36,8 @@ THREADS=4
 ORGANISM=""
 INTERACTIVE=false
 EXTRACT_GENES=false
+# How many top-ranked assemblies to display and write to the results table.
+TOP_N=50
 
 # =====================================
 # Assembly downloads

@@ -60,6 +60,7 @@ SEARCH COMMAND
 
     Options:
       --organism "NAME"      Organism name (required)
+      --top N                Number of top-ranked assemblies to show (default: 50)
       --outdir DIR           Output directory (default: downloads)
       --output FILE          Custom output filename
       --interactive, -i      Interactive mode - select assemblies to download
@@ -71,6 +72,9 @@ SEARCH COMMAND
 
       # Search and save to custom directory
       seqfetcher search --organism "Homo sapiens" --outdir human_data
+
+      # Show the top 200 ranked assemblies instead of the default 50
+      seqfetcher search --organism "Homo sapiens" --top 200
 
       # Interactive mode - choose which assemblies to download
       seqfetcher search --organism "Saccharomyces cerevisiae" --interactive

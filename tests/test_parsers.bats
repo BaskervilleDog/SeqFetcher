@@ -28,6 +28,16 @@ setup() {
     [ "$INTERACTIVE" = true ]
 }
 
+@test "parsers_search::parse_search_arguments --top sets TOP_N" {
+    parsers_search::parse_search_arguments --organism "E. coli" --top 200
+    [ "$TOP_N" = 200 ]
+}
+
+@test "parsers_search::parse_search_arguments TOP_N defaults to 50" {
+    parsers_search::parse_search_arguments --organism "E. coli"
+    [ "$TOP_N" = 50 ]
+}
+
 @test "parsers_search::parse_search_arguments sets custom OUTDIR and OUTPUT_FILE" {
     parsers_search::parse_search_arguments --organism "E. coli" --outdir mydir --output myfile.tsv
     [ "$OUTDIR" = "mydir" ]

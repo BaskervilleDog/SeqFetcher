@@ -78,6 +78,7 @@ ID   ACCESSION          ORGANISM           LEVEL        STATUS      REFSEQ_CATEG
 
 **Options:**
 - `--organism` - Scientific name (required)
+- `--top` - Number of top-ranked assemblies to display and write to the table (default: 50)
 - `--outdir` - Output directory (default: downloads)
 - `--output` - Custom output filename
 
