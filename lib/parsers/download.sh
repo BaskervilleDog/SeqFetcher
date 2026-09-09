@@ -52,6 +52,32 @@ parsers_download::parse_download_arguments() {
                 PROTEOME=true
                 DOWNLOAD_TYPE="proteome"
                 shift ;;
+            --proteome-id)
+                PROTEOME_ID="$2"
+                PROTEOME=true
+                PROTEOME_SOURCE="uniprot"
+                DOWNLOAD_TYPE="proteome"
+                shift 2 ;;
+            --annotation)
+                ANNOTATION=true
+                DOWNLOAD_TYPE="annotation"
+                shift ;;
+            --annotation-formats)
+                ANNOTATION_FORMATS="$2"; shift 2 ;;
+            --structure)
+                STRUCTURE=true
+                DOWNLOAD_TYPE="structure"
+                shift ;;
+            --alphafold)
+                STRUCTURE_ALPHAFOLD="$2"; STRUCTURE=true; DOWNLOAD_TYPE="structure"; shift 2 ;;
+            --alphafold-file)
+                STRUCTURE_ALPHAFOLD_FILE="$2"; STRUCTURE=true; DOWNLOAD_TYPE="structure"; shift 2 ;;
+            --pdb)
+                STRUCTURE_PDB="$2"; STRUCTURE=true; DOWNLOAD_TYPE="structure"; shift 2 ;;
+            --pdb-file)
+                STRUCTURE_PDB_FILE="$2"; STRUCTURE=true; DOWNLOAD_TYPE="structure"; shift 2 ;;
+            --format)
+                STRUCTURE_FORMAT="$2"; shift 2 ;;
             --ortholog)
                 ORTHOLOG="$2"; ORTHOLOG_USER=true; DOWNLOAD_TYPE="ortholog"; shift 2 ;;
             --ortholog-file)
@@ -66,4 +92,10 @@ parsers_download::parse_download_arguments() {
                 log_error "Unknown option for download: $1"; show_help; exit "${EX_USAGE:-2}" ;;
         esac
     done
+
+    # --annotation / --structure win regardless of flag order (--accession,
+    # --species etc. also set DOWNLOAD_TYPE as a side effect).
+    if [[ "$ANNOTATION" == true ]]; then DOWNLOAD_TYPE="annotation"; fi
+    if [[ "$STRUCTURE"  == true ]]; then DOWNLOAD_TYPE="structure"; fi
+    return 0
 }

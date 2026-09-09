@@ -29,7 +29,7 @@ SEQFETCHER="$BASE_DIR/seqfetcher.sh"
 @test "--version prints the version and exits 0" {
     run "$SEQFETCHER" --version
     [ "$status" -eq 0 ]
-    [[ "$output" == *"1.1.0"* ]]
+    [[ "$output" =~ ^seqfetcher\ [0-9]+\.[0-9]+\.[0-9]+ ]]
 }
 
 @test "an unknown global flag before a command is not treated as a command" {
@@ -77,4 +77,32 @@ SEQFETCHER="$BASE_DIR/seqfetcher.sh"
 @test "bp-srr with no --bioproject exits 2 (EX_USAGE)" {
     run "$SEQFETCHER" bp-srr
     [ "$status" -eq 2 ]
+}
+
+@test "download --annotation with no accession exits 2" {
+    run "$SEQFETCHER" download --annotation
+    [ "$status" -eq 2 ]
+}
+
+@test "download --structure with no ids exits 2" {
+    run "$SEQFETCHER" download --structure
+    [ "$status" -eq 2 ]
+}
+
+@test "download --proteome --source uniprot with no id exits 2" {
+    run "$SEQFETCHER" download --proteome --source uniprot
+    [ "$status" -eq 2 ]
+}
+
+@test "sra-info with no accession exits 2" {
+    run "$SEQFETCHER" sra-info
+    [ "$status" -eq 2 ]
+}
+
+@test "help lists the new commands and flags" {
+    run "$SEQFETCHER" --help
+    [[ "$output" == *"sra-info"* ]]
+    [[ "$output" == *"--annotation"* ]]
+    [[ "$output" == *"--structure"* ]]
+    [[ "$output" == *"--proteome-id"* ]]
 }

@@ -20,7 +20,7 @@
 
 # Single source of truth for the version string (shown in --version, the
 # help banner, and recorded in seqfetcher.lock.json).
-SEQFETCHER_VERSION="1.1.0"
+SEQFETCHER_VERSION="1.2.0"
 
 # =====================================
 # General defaults
@@ -103,14 +103,33 @@ TRANSCRIPTOME_SOURCE="ncbi"
 TRANSCRIPTOME_TYPE="cdna"
 
 # =====================================
+# Annotation-only downloads
+# =====================================
+
+ANNOTATION=false
+ANNOTATION_FORMATS="gff3,gtf"   # subset of gff3,gtf,gbff
+
+# =====================================
 # Proteome
 # =====================================
 
 PROTEOME=false
 PROTEOME_ASSEMBLY=""
 PROTEOME_SPECIES=""
-PROTEOME_SOURCE="ncbi"
+PROTEOME_SOURCE="ncbi"          # ncbi | ensembl | auto | uniprot
 PROTEOME_TYPE="pep"
+PROTEOME_ID=""                  # UniProt proteome id (with --source uniprot)
+
+# =====================================
+# Structure downloads (AlphaFold / RCSB PDB)
+# =====================================
+
+STRUCTURE=false
+STRUCTURE_ALPHAFOLD=""          # comma-separated UniProt accessions
+STRUCTURE_ALPHAFOLD_FILE=""
+STRUCTURE_PDB=""                # comma-separated PDB ids
+STRUCTURE_PDB_FILE=""
+STRUCTURE_FORMAT="pdb"          # pdb | cif
 
 # =====================================
 # BioProject

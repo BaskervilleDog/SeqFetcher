@@ -8,8 +8,16 @@ validators_download::validate_download_inputs() {
             validators_assembly::validate_assembly_download
             ;;
 
+        annotation)
+            validators_annotation::validate_annotation_download
+            ;;
+
         gene)
             validators_gene::validate_gene_download
+            ;;
+
+        structure)
+            validators_structure::validate_structure_download
             ;;
 
         sra)

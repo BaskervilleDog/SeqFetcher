@@ -89,3 +89,27 @@ setup() {
     [ "$ORTHOLOG_FILE_USER" = true ]
     [ "$DOWNLOAD_TYPE" = "ortholog" ]
 }
+
+@test "parsers_download::parse_download_arguments --annotation wins over --accession regardless of order" {
+    parsers_download::parse_download_arguments --accession GCF_000009045.1 --annotation --annotation-formats gff3
+    [ "$DOWNLOAD_TYPE" = "annotation" ]
+    [ "$ANNOTATION" = true ]
+    [ "$ANNOTATION_FORMATS" = "gff3" ]
+    [ "$ACCESSION" = "GCF_000009045.1" ]
+}
+
+@test "parsers_download::parse_download_arguments --proteome-id implies --source uniprot" {
+    parsers_download::parse_download_arguments --proteome-id UP000005640
+    [ "$DOWNLOAD_TYPE" = "proteome" ]
+    [ "$PROTEOME_SOURCE" = "uniprot" ]
+    [ "$PROTEOME_ID" = "UP000005640" ]
+}
+
+@test "parsers_download::parse_download_arguments --structure / --alphafold / --pdb / --format" {
+    parsers_download::parse_download_arguments --alphafold P04637,P0DP23 --pdb 1TUP --format cif
+    [ "$DOWNLOAD_TYPE" = "structure" ]
+    [ "$STRUCTURE" = true ]
+    [ "$STRUCTURE_ALPHAFOLD" = "P04637,P0DP23" ]
+    [ "$STRUCTURE_PDB" = "1TUP" ]
+    [ "$STRUCTURE_FORMAT" = "cif" ]
+}

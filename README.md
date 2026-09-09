@@ -38,10 +38,12 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 
 | Source | Data Types | Features |
 |--------|------------|----------|
-| **NCBI** | Assemblies, genes, SRA reads, orthologs | Reference genomes, annotations |
+| **NCBI** | Assemblies, annotation-only (GFF3/GTF), genes, SRA reads, SRA runinfo, orthologs | Reference genomes, annotations |
 | **ENA** | FASTQ files | Direct download, MD5 verification |
 | **GEO** | Supplementary files, SRA links | Expression data, metadata |
-| **Ensembl** | Transcriptomes, proteomes, FASTA | Latest releases, multiple species |
+| **Ensembl** | Transcriptomes, proteomes, FASTA | Release pinning, multiple species |
+| **UniProt** | Reference proteomes by proteome ID | Whole-proteome FASTA, release recorded |
+| **AlphaFold / RCSB PDB** | Predicted & experimental structures | By UniProt accession / PDB id, PDB or mmCIF |
 
 ---
 
@@ -236,6 +238,13 @@ Contributions welcome! Please:
 ---
 
 ## Changelog
+
+### Version 1.2.0 (2026-09-09)
+- `download --annotation` - GFF3/GTF (and GBFF) for an assembly without the genome FASTA
+- `download --proteome --proteome-id UPXXXXXXXXX` - whole UniProt reference proteomes
+- `download --structure --alphafold <UniProt> | --pdb <PDBID>` (`--format pdb|cif`) - AlphaFold + RCSB PDB structures
+- `sra-info` - the SRA runinfo table for any SRA/BioProject accession, without downloading reads
+- `--json`/lockfile/idempotency/exit-code contract extended to all of the above
 
 ### Version 1.1.0 (2026-09-09)
 - Pipeline foundation: logs on stderr, payload on stdout, global `--json` / `--quiet` / `--no-color` / `--force` / `--require-pinned` / `--version`

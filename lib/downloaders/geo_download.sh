@@ -393,7 +393,7 @@ with open(meta_path, "w", newline="") as f:
     writer.writeheader()
     writer.writerows(meta_rows)
 
-print(f"Parsed {len(samples)} GSM samples, {len(all_srr)} runs")
+print(f"Parsed {len(samples)} GSM samples, {len(all_srr)} runs", file=sys.stderr)
 PYEOF
 
     # ----------------------------------------------------------

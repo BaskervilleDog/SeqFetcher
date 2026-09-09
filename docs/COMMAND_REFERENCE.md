@@ -13,11 +13,14 @@ Full usage guide for every SeqFetcher command. For installation and a
 - [Output Layout](#output-layout)
 - [Searching Genomes](#searching-genomes)
 - [Downloading Assemblies](#downloading-assemblies)
+- [Downloading Annotation Only](#downloading-annotation-only)
 - [Downloading Genes](#downloading-genes)
 - [Downloading SRA Data](#downloading-sra-data)
 - [Downloading from GEO](#downloading-from-geo)
+- [SRA runinfo (`sra-info`)](#sra-runinfo-sra-info)
 - [Downloading Transcriptomes](#downloading-transcriptomes)
 - [Downloading Proteomes](#downloading-proteomes)
+- [Downloading Structures](#downloading-structures)
 - [Downloading from Ensembl](#downloading-from-ensembl)
 - [Downloading Orthologs](#downloading-orthologs)
 - [Common Workflows](#common-workflows)
@@ -83,7 +86,7 @@ finishes with a mix of successes and failures, `5` when everything failed,
 ```
 
 `search` emits `{ command, status, organism, count, assemblies: [...], files: {table, accessions, taxonomy} }`.
-`geo-srr` / `bp-srr` emit `{ command, status, count, runs: [...], files: {run_list, metadata_tsv} }`.
+`geo-srr` / `bp-srr` / `sra-info` emit `{ command, status, count, runs: [...], files: {run_list, metadata_tsv} }`.
 A usage error under `--json` still prints `{ "status": "error", "exit_code": 2, "errors": [...] }`.
 
 ## Lockfile (`seqfetcher.lock.json`)
@@ -157,13 +160,19 @@ downloads/
 │   ├── GEO_SRR_list.txt                   geo-srr
 │   ├── GEO_SRR_list_metadata.tsv          geo-srr
 │   ├── BioProject_SRR_list.txt            bp-srr
-│   └── BioProject_SRR_list_metadata.tsv   bp-srr
+│   ├── BioProject_SRR_list_metadata.tsv   bp-srr
+│   ├── sra_runinfo.tsv                    sra-info
+│   └── sra_runinfo_runs.txt               sra-info
 ├── <ACCESSION>/                         download --accession(-file)
+├── annotations/<ACCESSION>/             download --annotation
 ├── batch_N_genes_X_to_Y/                download --gene-id / --gene-file
 ├── fastq/                               download --sra-method ...
 ├── metadata/<GSE>/                      download --geo (supplementary files)
 ├── transcriptomes/<accession-or-species>/...   download --transcriptome
-├── proteomes/<accession-or-species>/...        download --proteome
+├── proteomes/<accession-or-species>/...        download --proteome --source ncbi|ensembl
+├── proteomes/uniprot/<UPID>/            download --proteome --source uniprot
+├── structures/alphafold/               download --structure --alphafold
+├── structures/pdb/                     download --structure --pdb
 ├── ensembl/<species>/<type>/            download --ensembl-fasta
 └── orthologs/<accession>/               download --ortholog(-file)
 ```
@@ -256,6 +265,22 @@ EOF
 # Download in parallel (8 jobs)
 seqfetcher download --accession-file assemblies.txt --jobs 8
 ```
+
+### Downloading Annotation Only
+
+Fetch GFF3/GTF (and optionally GBFF) for an assembly **without** the genome
+FASTA - `datasets` with a restricted `--include`.
+
+```bash
+seqfetcher download --annotation --accession GCF_000009045.1
+seqfetcher download --annotation --accession-file accs.txt --annotation-formats gff3
+```
+
+**Options:**
+- `--annotation` - select annotation-only mode (wins over `--assembly` in any order)
+- `--annotation-formats` - comma-separated, subset of `gff3,gtf,gbff` (default `gff3,gtf`)
+
+Output: `<outdir>/annotations/<ACCESSION>/`; lockfile key `<ACCESSION>:annotation`.
 
 ---
 
@@ -380,6 +405,39 @@ seqfetcher download --sra-method fasterq --sra-accession-file runs.txt
 
 ---
 
+### SRA runinfo (`sra-info`)
+
+Fetch the SRA **runinfo table** - one row per run with library / instrument /
+spot-count / BioSample metadata - for any SRA-resolvable accession, **without
+downloading the reads**. `geo-srr` and `bp-srr` produce this as a side effect
+for GEO series and BioProjects respectively; `sra-info` exposes it directly.
+
+```bash
+seqfetcher sra-info --accession SRP012482
+seqfetcher sra-info --accession PRJNA231221,SRP012482 --out runs.txt
+seqfetcher sra-info --accession-file accessions.txt --outdir study_meta
+```
+
+Accepts **SRR/ERR/DRR, SRX, SRP/ERP/DRP and BioProject (PRJNA/PRJEB/PRJDB)** -
+anything searchable in the NCBI SRA database. Resolution is at the SRA
+*experiment* level: a run accession returns that run **and its siblings in the
+same experiment**.
+
+**Options:**
+- `--accession ACC[,ACC,...]` - one or more accessions (required unless `--accession-file`)
+- `--accession-file FILE` - one accession per line
+- `--out FILE` - run-list filename (default `sra_runinfo_runs.txt`)
+- `--outdir DIR` - output directory
+
+**Output** (under `<outdir>/tables/`):
+- `sra_runinfo.tsv` - full runinfo table
+- `sra_runinfo_runs.txt` - run accessions, one per line
+
+`--json` → `{ command: "sra-info", count, runs: [...], files: {run_list, metadata_tsv} }`.
+Exit `4` when nothing resolves.
+
+---
+
 ### Downloading Transcriptomes
 
 #### From Assembly
@@ -427,11 +485,52 @@ seqfetcher download --proteome --assembly GCF_000001405.40
 seqfetcher download --proteome --species drosophila_melanogaster --source auto
 ```
 
+#### From UniProt (whole reference proteome, one gzipped FASTA)
+
+```bash
+seqfetcher download --proteome --proteome-id UP000005640
+```
+
+`--proteome-id` implies `--source uniprot`. The FASTA comes from the UniProt
+REST stream endpoint; the current UniProt release (e.g. `2026_03`) is
+recorded as `db_release` in the lockfile. UniProt has no historical-release
+download, so `--require-pinned` only warns.
+
 **Options:**
-- `--assembly` - Assembly accession
-- `--species` - Species name
-- `--source` - ncbi | ensembl | auto (default: ncbi)
-- `--type` - pep (default: pep)
+- `--assembly` - Assembly accession (source ncbi/ensembl/auto)
+- `--species` - Species name (source ensembl/auto)
+- `--source` - ncbi | ensembl | auto | uniprot (default: ncbi)
+- `--proteome-id` - UniProt proteome id `UPXXXXXXXXX` (source uniprot)
+- `--type` - pep (default: pep; ncbi/ensembl only)
+
+Output: `<outdir>/proteomes/uniprot/<UPID>/<UPID>.fasta.gz`.
+
+---
+
+### Downloading Structures
+
+Fetch predicted (AlphaFold) or experimental (RCSB PDB) protein structures by
+explicit id. One `--structure` type; give AlphaFold **UniProt accessions** and
+PDB **4-character ids**.
+
+```bash
+# AlphaFold models (mmCIF) for two UniProt accessions
+seqfetcher download --structure --alphafold P04637,P0DP23 --format cif
+
+# RCSB PDB structures
+seqfetcher download --structure --pdb 1TUP,4HHB
+seqfetcher download --structure --pdb-file ids.txt
+```
+
+**Options:**
+- `--alphafold` / `--alphafold-file` - UniProt accessions (comma list / file)
+- `--pdb` / `--pdb-file` - PDB ids (comma list / file)
+- `--format` - `pdb` (default) or `cif`
+
+Output: `<outdir>/structures/alphafold/AF-<ACC>-F1-model_v<N>.<fmt>` and
+`<outdir>/structures/pdb/<ID>.<fmt>`. AlphaFold model version is recorded as
+`db_release`; PDB ids are immutable. A batch with a mix of hits and misses
+exits `7`; an id with no structure exits `4`.
 
 ---
 

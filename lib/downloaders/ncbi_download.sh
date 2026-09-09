@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
 #==============================================================
-# Download single assembly (basic)
+# Download a genome data package (assembly, or annotation-only)
 #==============================================================
 
-downloaders_ncbi_download::download_assembly() {
+# _download_genome_package <acc> <outdir> <include> <type> <dest_dir>
+#   <include>  - datasets --include string (e.g. genome,gff3,gtf,cds,protein
+#                for a full assembly; gff3,gtf for annotation-only)
+#   <type>     - lockfile artifact type + key suffix ("assembly" | "annotation")
+#   <dest_dir> - where the extracted payload lands
+downloaders_ncbi_download::_download_genome_package() {
     local accession="$1"
-    local outdir="${2:-downloads}"
+    local outdir="$2"
+    local include="$3"
+    local type="$4"
+    local dest_dir="$5"
 
     [[ -z "$accession" ]] && { log_error "Empty accession"; return "${EX_USAGE:-2}"; }
     accession=$(echo "$accession" | xargs)
@@ -16,36 +24,34 @@ downloaders_ncbi_download::download_assembly() {
         die "datasets command not found - install the NCBI datasets CLI" "${EX_DEPENDENCY:-3}"
     }
 
-    local dest_dir="$outdir/$accession"
-    local key="${accession}:assembly"
-    local incl="genome,gff3,gtf,cds,protein"
+    local key="${accession}:${type}"
 
     # Skip-by-default: a completed lockfile entry + an on-disk directory is
-    # enough (assemblies are multi-file, so we don't checksum-verify here).
+    # enough (these are multi-file, so we don't checksum-verify here).
     if [[ "${FORCE:-false}" != true ]] && manifest::is_done "$key" && [[ -d "$dest_dir" ]]; then
-        log_info "[$accession] already downloaded - skipping (use --force to refetch)"
-        manifest::record_run_only "$key" "$(jq -n --arg a "$accession" --arg d "$dest_dir" \
-            '{accession:$a, type:"assembly", source:"ncbi-datasets", status:"skipped", files:[{path:$d}]}')"
+        log_info "[$accession] $type already downloaded - skipping (use --force to refetch)"
+        manifest::record_run_only "$key" "$(jq -n --arg a "$accession" --arg t "$type" --arg d "$dest_dir" \
+            '{accession:$a, type:$t, source:"ncbi-datasets", status:"skipped", files:[{path:$d}]}')"
         return 0
     fi
 
-    log_info "[$accession] downloading assembly ($incl)"
+    log_info "[$accession] downloading $type ($include)"
 
     local stage; stage="$(downloaders_common::new_stage)" || return "${EX_ERROR:-1}"
     local zip="$stage/${accession}.zip"
 
     if ! datasets download genome accession "$accession" \
-            --include "$incl" --filename "$zip"; then
+            --include "$include" --filename "$zip"; then
         log_error "[$accession] download failed"
         rm -rf "$stage"
-        manifest::record "$key" "$(jq -n --arg a "$accession" '{accession:$a, type:"assembly", source:"ncbi-datasets", status:"failed"}')"
+        manifest::record "$key" "$(jq -n --arg a "$accession" --arg t "$type" '{accession:$a, type:$t, source:"ncbi-datasets", status:"failed"}')"
         return "${EX_NETWORK:-5}"
     fi
 
     if ! unzip -q "$zip" -d "$stage/extracted" 2>/dev/null; then
         log_error "[$accession] failed to extract archive"
         rm -rf "$stage"
-        manifest::record "$key" "$(jq -n --arg a "$accession" '{accession:$a, type:"assembly", source:"ncbi-datasets", status:"failed"}')"
+        manifest::record "$key" "$(jq -n --arg a "$accession" --arg t "$type" '{accession:$a, type:$t, source:"ncbi-datasets", status:"failed"}')"
         return "${EX_ERROR:-1}"
     fi
     rm -f "$zip"
@@ -57,9 +63,23 @@ downloaders_ncbi_download::download_assembly() {
     fi
     rm -rf "$stage"
 
-    log_success "[$accession] downloaded to $dest_dir"
-    downloaders_ncbi_download::_record_dir "$key" "$accession" "assembly" "ncbi-datasets" "$dest_dir"
+    log_success "[$accession] $type downloaded to $dest_dir"
+    downloaders_ncbi_download::_record_dir "$key" "$accession" "$type" "ncbi-datasets" "$dest_dir"
     return 0
+}
+
+downloaders_ncbi_download::download_assembly() {
+    local accession="$1" outdir="${2:-downloads}"
+    downloaders_ncbi_download::_download_genome_package \
+        "$accession" "$outdir" "genome,gff3,gtf,cds,protein" "assembly" "$outdir/$accession"
+}
+
+downloaders_ncbi_download::download_annotation() {
+    local accession="$1" outdir="${2:-downloads}"
+    local formats="${3:-${ANNOTATION_FORMATS:-gff3,gtf}}"
+    accession=$(echo "$accession" | xargs)
+    downloaders_ncbi_download::_download_genome_package \
+        "$accession" "$outdir" "$formats" "annotation" "$outdir/annotations/$accession"
 }
 
 # Records a downloaded directory tree into the lockfile: every regular file
@@ -91,11 +111,15 @@ downloaders_ncbi_download::_record_dir() {
 # Download multiple assemblies in parallel
 #==============================================================
 
-downloaders_ncbi_download::download_assemblies_parallel() {
+# _download_genome_packages_parallel <file> <outdir> <jobs> <worker_fn>
+#   <worker_fn> is one of download_assembly / download_annotation - called as
+#   `<worker_fn> "$acc" "$outdir"`.
+downloaders_ncbi_download::_download_genome_packages_parallel() {
     local accession_file="$1"
     local outdir="$2"
     local jobs="${3:-4}"
-    
+    local worker="${4:-downloaders_ncbi_download::download_assembly}"
+
     [[ ! -f "$accession_file" ]] && { log_error "Accession file not found: $accession_file"; return "${EX_USAGE:-2}"; }
 
     mapfile -t accessions < <(grep -vE '^\s*#|^\s*$' "$accession_file")
@@ -116,7 +140,7 @@ downloaders_ncbi_download::download_assemblies_parallel() {
 
         log_info "[$count/$total] Downloading: $acc"
 
-        downloaders_ncbi_download::download_assembly "$acc" "$outdir" "true" &
+        "$worker" "$acc" "$outdir" &
         pids+=($!)
         
         # Limit parallel jobs
@@ -145,6 +169,16 @@ downloaders_ncbi_download::download_assemblies_parallel() {
     log_info "═══════════════════════════════════════"
 
     downloaders_common::batch_exit_code "$successful" "$failed"
+}
+
+downloaders_ncbi_download::download_assemblies_parallel() {
+    downloaders_ncbi_download::_download_genome_packages_parallel \
+        "$1" "$2" "${3:-4}" downloaders_ncbi_download::download_assembly
+}
+
+downloaders_ncbi_download::download_annotations_parallel() {
+    downloaders_ncbi_download::_download_genome_packages_parallel \
+        "$1" "$2" "${3:-4}" downloaders_ncbi_download::download_annotation
 }
 
 #==============================================================
@@ -350,7 +384,12 @@ downloaders_ncbi_download::download_assemblies_interactive() {
 }
 
 # Export functions for subshells
+export -f downloaders_ncbi_download::_download_genome_package
+export -f downloaders_ncbi_download::_record_dir
 export -f downloaders_ncbi_download::download_assembly
+export -f downloaders_ncbi_download::download_annotation
+export -f downloaders_ncbi_download::_download_genome_packages_parallel
 export -f downloaders_ncbi_download::download_assemblies_parallel
+export -f downloaders_ncbi_download::download_annotations_parallel
 export -f downloaders_ncbi_download::download_genes_batches
 export -f downloaders_ncbi_download::download_assemblies_interactive

@@ -72,6 +72,60 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
+# --- validators_annotation --------------------------------------------
+
+@test "validators_annotation::validate_annotation_download fails without an accession" {
+    run validators_annotation::validate_annotation_download
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_annotation::validate_annotation_download rejects a bad --annotation-formats value" {
+    ACCESSION="GCF_000005845.2"
+    ANNOTATION_FORMATS="gff3,fasta"
+    run validators_annotation::validate_annotation_download
+    [ "$status" -eq 2 ]
+    [[ "$output" == *"annotation-formats"* ]]
+}
+
+@test "validators_annotation::validate_annotation_download passes with an accession and gff3,gtf" {
+    ACCESSION="GCF_000005845.2"
+    ANNOTATION_FORMATS="gff3,gtf"
+    run validators_annotation::validate_annotation_download
+    [ "$status" -eq 0 ]
+}
+
+# --- validators_structure --------------------------------------------
+
+@test "validators_structure::validate_structure_download fails with no ids" {
+    run validators_structure::validate_structure_download
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_structure::validate_structure_download rejects a bad --format" {
+    STRUCTURE_PDB="1TUP"
+    STRUCTURE_FORMAT="fasta"
+    run validators_structure::validate_structure_download
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_structure::validate_structure_download rejects a malformed PDB id" {
+    STRUCTURE_PDB="1TU"
+    run validators_structure::validate_structure_download
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_structure::validate_structure_download passes with --pdb 1TUP" {
+    STRUCTURE_PDB="1TUP"
+    run validators_structure::validate_structure_download
+    [ "$status" -eq 0 ]
+}
+
+@test "validators_structure::validate_structure_download passes with --alphafold P04637" {
+    STRUCTURE_ALPHAFOLD="P04637"
+    run validators_structure::validate_structure_download
+    [ "$status" -eq 0 ]
+}
+
 # --- validators_gene -----------------------------------------------
 
 @test "validators_gene::validate_gene_download fails without --gene-id/--gene-file" {
@@ -171,6 +225,20 @@ setup() {
     [ "$status" -eq 2 ]
 
     PROTEOME_ASSEMBLY="GCF_000005845.2"
+    run validators_proteome::validate_proteome_download
+    [ "$status" -eq 0 ]
+}
+
+@test "validators_proteome::validate_proteome_download requires --proteome-id when --source uniprot" {
+    PROTEOME_SOURCE="uniprot"
+    run validators_proteome::validate_proteome_download
+    [ "$status" -eq 2 ]
+
+    PROTEOME_ID="not-an-id"
+    run validators_proteome::validate_proteome_download
+    [ "$status" -eq 2 ]
+
+    PROTEOME_ID="UP000005640"
     run validators_proteome::validate_proteome_download
     [ "$status" -eq 0 ]
 }

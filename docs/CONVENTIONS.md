@@ -134,6 +134,18 @@ artifact with `manifest::record <key> <json>` on success/failure and
 `downloaded` entry). All `manifest::*` are `export -f`'d for `parallel`
 workers; the ENA path also `--env`s `LOCKFILE`/`MANIFEST_RUN`/`FORCE`.
 
+## New downloaders follow the foundation pattern
+
+`lib/downloaders/{uniprot,structure,sra_info}_download.sh` and the
+annotation path in `lib/downloaders/ncbi_download.sh` are all built the same
+way: check deps, resolve a URL, `downloaders_common::already_have` →
+`atomic_fetch` (or `new_stage`+`promote` for `datasets` zips), then
+`manifest::record` (`record_run_only` for a skip). A batch tallies ok/fail and
+ends with `downloaders_common::batch_exit_code`. `sra-info` is a top-level
+command (like `geo-srr`/`bp-srr`): a `lib/commands/*.sh` + a
+`lib/downloaders/*_download.sh`, dispatched from `seqfetcher.sh` `main()`, with
+`emit_json` gated on `$JSON_OUTPUT`.
+
 ## Atomic + idempotent downloads: `lib/downloaders/common.sh`
 
 New helpers: `already_have` (skip-by-default gate; honours `FORCE`),

@@ -6,7 +6,9 @@ commands_download::execute_download() {
 
     case "$DOWNLOAD_TYPE" in
         assembly)      downloaders_assembly::run_assembly_download ;;
+        annotation)    downloaders_annotation::run_annotation_download ;;
         gene)          downloaders_gene::run_gene_download ;;
+        structure)     downloaders_structure::run_structure_download ;;
         sra)           downloaders_sra::run_sra_download ;;
         geo)           downloaders_geo::run_geo_download ;;
         ensembl-fasta) downloaders_ensembl::run_ensembl_download ;;

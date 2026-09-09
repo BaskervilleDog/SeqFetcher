@@ -50,6 +50,7 @@ COMMANDS
     download      Download sequences from various databases
     geo-srr       Extract SRA run accessions from GEO series
     bp-srr        Extract SRA run accessions from BioProjects
+    sra-info      Fetch the SRA runinfo table for any SRA/BioProject accession
 
 GLOBAL OPTIONS (before the command)
     --json                Emit a machine-readable result object on stdout
@@ -121,6 +122,17 @@ DOWNLOAD COMMAND
 
         # Download multiple assemblies in parallel
         seqfetcher download --accession-file assemblies.txt --jobs 8
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ ANNOTATION-ONLY DOWNLOADS (GFF3/GTF, no genome FASTA)                    │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --annotation                 Fetch annotation only for --accession(-file)
+      --annotation-formats LIST    Comma-separated: gff3,gtf,gbff (default: gff3,gtf)
+
+      Example:
+        seqfetcher download --annotation --accession GCF_000009045.1
+        seqfetcher download --annotation --accession-file accs.txt --annotation-formats gff3
 
     ┌─────────────────────────────────────────────────────────────────────────┐
     │ GENE DOWNLOADS                                                          │
@@ -231,7 +243,9 @@ DOWNLOAD COMMAND
       --source SOURCE            Data source (default: ncbi)
           ncbi     - NCBI RefSeq
           ensembl  - Ensembl
-          auto     - Try both
+          auto     - Try NCBI then Ensembl
+          uniprot  - UniProt (needs --proteome-id)
+      --proteome-id UPXXXXXXXXX  UniProt proteome id (implies --source uniprot)
       --type TYPE                Protein type (default: pep)
 
       Examples:
@@ -240,6 +254,24 @@ DOWNLOAD COMMAND
 
         # Download from species
         seqfetcher download --proteome --species drosophila_melanogaster
+
+        # Download a whole UniProt reference proteome (one gzipped FASTA)
+        seqfetcher download --proteome --proteome-id UP000005640
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │ STRUCTURE DOWNLOADS (AlphaFold / RCSB PDB)                              │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+      --structure                Enable structure download
+      --alphafold ACC[,ACC,...]  AlphaFold models by UniProt accession
+      --alphafold-file FILE      File with one UniProt accession per line
+      --pdb ID[,ID,...]          RCSB PDB structures by 4-char PDB id
+      --pdb-file FILE            File with one PDB id per line
+      --format FMT               pdb (default) or cif
+
+      Examples:
+        seqfetcher download --structure --alphafold P04637,P0DP23 --format cif
+        seqfetcher download --structure --pdb 1TUP,4HHB
 
     ┌─────────────────────────────────────────────────────────────────────────┐
     │ ORTHOLOG DOWNLOADS                                                      │
@@ -307,6 +339,31 @@ BP-SRR COMMAND
 
       # Extract to custom file
       seqfetcher bp-srr --bioproject PRJNA175224 --out my_runs.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SRA-INFO COMMAND
+
+    Fetch the SRA runinfo table (library, instrument, spots, BioSample
+    metadata - one row per run) for any SRA-resolvable accession, without
+    downloading the reads.
+
+    seqfetcher sra-info --accession <ACC[,ACC...]> [options]
+    seqfetcher sra-info --accession-file <file> [options]
+
+    Accepts SRR/ERR/DRR, SRX, SRP/ERP/DRP and BioProject (PRJNA/PRJEB/PRJDB).
+
+    Options:
+      --accession ACC[,ACC,...]   One or more accessions (required unless --accession-file)
+      --accession-file FILE       File with one accession per line
+      --out FILE                  Run-list filename (default: sra_runinfo_runs.txt)
+      --outdir DIR                Output directory (default: downloads)
+
+    Outputs under <outdir>/tables/: sra_runinfo.tsv + sra_runinfo_runs.txt
+
+    Examples:
+      seqfetcher sra-info --accession SRP012482
+      seqfetcher sra-info --accession PRJNA231221 --out runs.txt
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -419,6 +476,10 @@ main() {
         bp-srr)
             shift
             commands_bioproject_srr::run_bioproject_srr "$@" || rc=$?
+            ;;
+        sra-info)
+            shift
+            commands_sra_info::run_sra_info "$@" || rc=$?
             ;;
         *)
             die "Unknown command: $cmd" "${EX_USAGE:-2}"
