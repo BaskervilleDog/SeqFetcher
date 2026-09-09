@@ -69,33 +69,60 @@ EXIT CODES
 
 SEARCH COMMAND
 
-    Search for assemblies and extract gene information from NCBI.
+    Discover what's available before downloading. Three modes: NCBI assemblies
+    (default), RCSB PDB structures (--pdb), AlphaFold models (--alphafold).
+    Each writes a ranked <outdir>/tables/*.tsv plus an id/accession list that
+    feeds straight into a download command.
 
-    seqfetcher search --organism "ORGANISM_NAME" [options]
+    seqfetcher search --organism "NAME" [options]                 # assemblies
+    seqfetcher search --pdb       [filters] [options]             # RCSB PDB
+    seqfetcher search --alphafold [filters] [options]             # AlphaFold
 
-    Options:
-      --organism "NAME"      Organism name (required)
-      --top N                Number of top-ranked assemblies to show (default: 50)
+    Common options:
+      --top N                Number of top-ranked results (default: 50)
       --outdir DIR           Output directory (default: downloads)
-      --output FILE          Custom output filename
-      --interactive, -i      Interactive mode - select assemblies to download
-      --extract-genes        Extract gene IDs from reference genome
+      --output FILE          Custom output table path
+      --interactive, -i      Pick rows from the table and download them now
+
+    Assemblies:
+      --organism "NAME"      Organism name (required)
+      --extract-genes        Extract gene IDs from the reference genome instead
+
+    --pdb filters (need at least one of --organism / --text / --uniprot / --ligand):
+      --text "STRING"        Full-text search
+      --organism "NAME"      Source organism (exact match)
+      --uniprot ACC[,ACC]    Structures referencing these UniProt accessions
+      --ligand ID[,ID]       Structures containing these chemical components
+      --method x-ray|em|nmr  Experimental method
+      --max-resolution N     Resolution <= N Angstrom
+      --min-chains N         At least N protein chains
+      --after-date / --before-date YYYY-MM-DD    Release-date window
+      --sort resolution|date|score               (default: relevance score)
+
+    --alphafold filters (need at least one of --organism / --taxon-id / --text
+                         / --gene / --keyword / --proteome):
+      --organism "NAME" | --taxon-id N     Species
+      --gene NAME            UniProt gene name
+      --keyword KW           UniProt keyword (KW-id or word)
+      --proteome UPXXXXXXXXX UniProt reference proteome
+      --text "STRING"        Free-text UniProt query
+      --reviewed             Swiss-Prot entries only
+      --check-alphafold      Verify each model exists; add version + mean pLDDT
 
     Examples:
-      # Basic search
       seqfetcher search --organism "Escherichia coli"
+      seqfetcher search --organism "Homo sapiens" --top 200 --interactive
+      seqfetcher search --organism "Mus musculus" --extract-genes
 
-      # Search and save to custom directory
-      seqfetcher search --organism "Homo sapiens" --outdir human_data
+      seqfetcher search --pdb --uniprot P04637
+      seqfetcher search --pdb --organism "Homo sapiens" --method x-ray --max-resolution 1.5 --sort resolution
+      seqfetcher search --pdb --uniprot P04637 --top 5 \
+        && seqfetcher download --structure --pdb-file downloads/tables/pdb_structures_ids.txt
 
-      # Show the top 200 ranked assemblies instead of the default 50
-      seqfetcher search --organism "Homo sapiens" --top 200
-
-      # Interactive mode - choose which assemblies to download
-      seqfetcher search --organism "Saccharomyces cerevisiae" --interactive
-
-      # Extract all gene IDs from reference genome
-      seqfetcher search --organism "Drosophila melanogaster" --extract-genes
+      seqfetcher search --alphafold --organism "Saccharomyces cerevisiae" --reviewed
+      seqfetcher search --alphafold --gene TP53 --check-alphafold
+      seqfetcher search --alphafold --proteome UP000005640 --top 5000 \
+        && seqfetcher download --structure --alphafold-file downloads/tables/alphafold_structures_accessions.txt
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

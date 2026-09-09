@@ -12,6 +12,7 @@ Full usage guide for every SeqFetcher command. For installation and a
 - [Idempotency & Resume](#idempotency--resume)
 - [Output Layout](#output-layout)
 - [Searching Genomes](#searching-genomes)
+- [Searching Structures (PDB / AlphaFold)](#searching-structures-pdb--alphafold)
 - [Downloading Assemblies](#downloading-assemblies)
 - [Downloading Annotation Only](#downloading-annotation-only)
 - [Downloading Genes](#downloading-genes)
@@ -162,7 +163,11 @@ downloads/
 │   ├── BioProject_SRR_list.txt            bp-srr
 │   ├── BioProject_SRR_list_metadata.tsv   bp-srr
 │   ├── sra_runinfo.tsv                    sra-info
-│   └── sra_runinfo_runs.txt               sra-info
+│   ├── sra_runinfo_runs.txt               sra-info
+│   ├── pdb_structures.tsv                 search --pdb
+│   ├── pdb_structures_ids.txt             search --pdb
+│   ├── alphafold_structures.tsv           search --alphafold
+│   └── alphafold_structures_accessions.txt  search --alphafold
 ├── <ACCESSION>/                         download --accession(-file)
 ├── annotations/<ACCESSION>/             download --annotation
 ├── batch_N_genes_X_to_Y/                download --gene-id / --gene-file
@@ -234,6 +239,81 @@ seqfetcher search --organism "Bacillus subtilis" --extract-genes
 ```
 
 Outputs gene IDs and metadata from the reference genome.
+
+---
+
+### Searching Structures (PDB / AlphaFold)
+
+The same discover-then-download flow as assemblies, for protein structures.
+Each mode writes a ranked `.tsv` **and** a bare id/accession `.txt` that goes
+straight into `download --structure`.
+
+#### `search --pdb` (RCSB PDB)
+
+```bash
+seqfetcher search --pdb --uniprot P04637
+seqfetcher search --pdb --organism "Homo sapiens" --method x-ray --max-resolution 1.5 --sort resolution --top 20
+```
+
+Needs **at least one** of `--organism` / `--text` / `--uniprot` / `--ligand`.
+
+| Filter | Meaning |
+|--------|---------|
+| `--text "STRING"` | full-text search |
+| `--organism "NAME"` | source organism (exact match) |
+| `--uniprot ACC[,ACC]` | entries referencing these UniProt accessions |
+| `--ligand ID[,ID]` | entries containing these chemical component ids (e.g. `ATP`) |
+| `--method x-ray\|em\|nmr` | experimental method |
+| `--max-resolution N` | resolution ≤ N Å |
+| `--min-chains N` | ≥ N protein chains |
+| `--after-date` / `--before-date` `YYYY-MM-DD` | release-date window |
+| `--sort resolution\|date\|score` | ordering (default: relevance score) |
+| `--top N` | rows to keep (RCSB caps at 10000) |
+
+Output columns: `PDB_ID  TITLE  METHOD  RESOLUTION  RELEASED  ORGANISM  UNIPROT  CHAINS`.
+Files: `tables/pdb_structures.tsv` + `tables/pdb_structures_ids.txt`.
+
+#### `search --alphafold` (UniProt → AlphaFold)
+
+AlphaFold has no search of its own, so this is a **UniProt search** — every
+result accession maps to an `AF-<accession>-F1` model.
+
+```bash
+seqfetcher search --alphafold --organism "Saccharomyces cerevisiae" --reviewed
+seqfetcher search --alphafold --gene TP53 --check-alphafold
+seqfetcher search --alphafold --proteome UP000005640 --top 5000
+```
+
+Needs **at least one** of `--organism` / `--taxon-id` / `--text` / `--gene` /
+`--keyword` / `--proteome`.
+
+| Filter | Meaning |
+|--------|---------|
+| `--organism "NAME"` / `--taxon-id N` | species |
+| `--gene NAME` | UniProt gene name |
+| `--keyword KW` | UniProt keyword (KW-id or word) |
+| `--proteome UPXXXXXXXXX` | UniProt reference proteome |
+| `--text "STRING"` | free-text UniProt query |
+| `--reviewed` | Swiss-Prot entries only |
+| `--check-alphafold` | verify each model + add `MODEL_VERSION`, `MEAN_PLDDT` (slow: ~3 req/s) |
+| `--top N` | rows to keep (capped 50000; paginates past 500) |
+
+Output columns: `ACCESSION  ENTRY_NAME  PROTEIN  GENE  LENGTH  ORGANISM  REVIEWED  ALPHAFOLD_ID [MODEL_VERSION MEAN_PLDDT]`.
+Files: `tables/alphafold_structures.tsv` + `tables/alphafold_structures_accessions.txt`.
+The UniProt release is logged for provenance.
+
+#### search → download
+
+```bash
+seqfetcher search --pdb --uniprot P04637 --top 5
+seqfetcher download --structure --pdb-file downloads/tables/pdb_structures_ids.txt
+
+# or pick interactively and download in one step
+seqfetcher search --pdb --organism "Escherichia coli" --max-resolution 1.2 --interactive
+```
+
+`--json` emits `{ command: "search", target: "pdb"|"alphafold", count,
+structures: [...], files: {table, ids} }`. No match → exit `4`.
 
 ---
 

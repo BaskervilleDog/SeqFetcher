@@ -43,7 +43,7 @@ SeqFetcher simplifies genomic data retrieval by providing a unified interface to
 | **GEO** | Supplementary files, SRA links | Expression data, metadata |
 | **Ensembl** | Transcriptomes, proteomes, FASTA | Release pinning, multiple species |
 | **UniProt** | Reference proteomes by proteome ID | Whole-proteome FASTA, release recorded |
-| **AlphaFold / RCSB PDB** | Predicted & experimental structures | By UniProt accession / PDB id, PDB or mmCIF |
+| **AlphaFold / RCSB PDB** | Predicted & experimental structures | Searchable metadata table, then download by id (PDB or mmCIF) |
 
 ---
 
@@ -238,6 +238,11 @@ Contributions welcome! Please:
 ---
 
 ## Changelog
+
+### Version 1.3.0 (2026-09-09)
+- `search --pdb` - RCSB PDB structure search (filter by organism, method, resolution, UniProt, ligand, date, chain count; sortable) → ranked table + id list
+- `search --alphafold` - AlphaFold model discovery via UniProt search (organism / gene / keyword / proteome / reviewed), `--check-alphafold` to verify + add pLDDT
+- Both feed `download --structure --pdb-file / --alphafold-file`; `--interactive` picks rows and downloads them in one step
 
 ### Version 1.2.0 (2026-09-09)
 - `download --annotation` - GFF3/GTF (and GBFF) for an assembly without the genome FASTA

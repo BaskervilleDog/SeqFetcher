@@ -44,6 +44,27 @@ setup() {
     [ "$OUTPUT_FILE" = "myfile.tsv" ]
 }
 
+@test "parsers_search::parse_search_arguments --pdb sets MODE and PDB filters" {
+    parsers_search::parse_search_arguments --pdb --organism "Homo sapiens" \
+        --method x-ray --max-resolution 2.0 --uniprot P04637 --sort resolution
+    [ "$MODE" = "pdb" ]
+    [ "$SEARCH_METHOD" = "x-ray" ]
+    [ "$SEARCH_MAX_RESOLUTION" = "2.0" ]
+    [ "$SEARCH_UNIPROT" = "P04637" ]
+    [ "$SEARCH_SORT" = "resolution" ]
+}
+
+@test "parsers_search::parse_search_arguments --alphafold sets MODE and AF filters" {
+    parsers_search::parse_search_arguments --alphafold --gene TP53 --keyword kinase \
+        --taxon-id 9606 --reviewed --check-alphafold
+    [ "$MODE" = "alphafold" ]
+    [ "$SEARCH_GENE" = "TP53" ]
+    [ "$SEARCH_KEYWORD" = "kinase" ]
+    [ "$SEARCH_TAXON_ID" = "9606" ]
+    [ "$SEARCH_REVIEWED" = true ]
+    [ "$CHECK_ALPHAFOLD" = true ]
+}
+
 @test "parsers_download::parse_download_arguments --accession sets DOWNLOAD_TYPE=assembly" {
     parsers_download::parse_download_arguments --accession GCF_000005845.2
     [ "$ACCESSION" = "GCF_000005845.2" ]

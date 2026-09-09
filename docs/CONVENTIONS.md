@@ -146,6 +146,14 @@ command (like `geo-srr`/`bp-srr`): a `lib/commands/*.sh` + a
 `lib/downloaders/*_download.sh`, dispatched from `seqfetcher.sh` `main()`, with
 `emit_json` gated on `$JSON_OUTPUT`.
 
+`search` is multi-mode: `$MODE` (assemblies | pdb | alphafold) is set by
+`--pdb`/`--alphafold` and dispatched in `commands_search::execute_search`.
+`lib/downloaders/pdb_search.sh` and `alphafold_search.sh` follow
+`ncbi_search.sh::search_assemblies_by_organism`'s table shape - jq-built
+query, jq-to-TSV, header row + a bare-id `.txt` sibling, pretty table to
+stderr gated on `$JSON_OUTPUT`, `EX_NOTFOUND` on zero hits. RCSB (search +
+GraphQL) and UniProt are plain curl+jq.
+
 ## Atomic + idempotent downloads: `lib/downloaders/common.sh`
 
 New helpers: `already_have` (skip-by-default gate; honours `FORCE`),

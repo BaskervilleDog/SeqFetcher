@@ -34,242 +34,254 @@ digraph call_graph {
   subgraph "cluster_lib.config" {
     label="lib.config"; style="dashed"; fontname="Helvetica"; fontsize=11;
   }
+  subgraph "cluster_lib.downloaders.alphafold_search" {
+    label="lib.downloaders.alphafold_search"; style="dashed"; fontname="Helvetica"; fontsize=11;
+    "lib.downloaders.alphafold_search.search_models" [label="search_models", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.alphafold_search._urlenc" [label="_urlenc", fillcolor="#fff6cc", shape=box];
+  }
   subgraph "cluster_lib.downloaders.annotation" {
     label="lib.downloaders.annotation"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.annotation.run_annotation_download" [label="run_annotation_download", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.annotation.run_annotation_download" [label="run_annotation_download", fillcolor="#cfe8ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.assembly" {
     label="lib.downloaders.assembly"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.assembly.run_assembly_download" [label="run_assembly_download", fillcolor="#cfe8ff", shape=box];
+    "lib.downloaders.assembly.run_assembly_download" [label="run_assembly_download", fillcolor="#d9f2d9", shape=box];
   }
   subgraph "cluster_lib.downloaders.bioproject_download" {
     label="lib.downloaders.bioproject_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.bioproject_download.bioproject_help_create_srr" [label="bioproject_help_create_srr", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.bioproject_download.validate_bioproject_accession" [label="validate_bioproject_accession", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.bioproject_download.create_srr_list_from_bioproject" [label="create_srr_list_from_bioproject", fillcolor="#d9f2d9", shape=box];
+    "lib.downloaders.bioproject_download.bioproject_help_create_srr" [label="bioproject_help_create_srr", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.bioproject_download.validate_bioproject_accession" [label="validate_bioproject_accession", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.bioproject_download.create_srr_list_from_bioproject" [label="create_srr_list_from_bioproject", fillcolor="#ffe8cc", shape=box];
   }
   subgraph "cluster_lib.downloaders.common" {
     label="lib.downloaders.common"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.common.prepare_download_environment" [label="prepare_download_environment", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.cleanup_temp" [label="cleanup_temp", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.is_help" [label="is_help", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.check_command" [label="check_command", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.md5" [label="md5", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common._bytes" [label="_bytes", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.already_have" [label="already_have", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.atomic_fetch" [label="atomic_fetch", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.new_stage" [label="new_stage", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.promote" [label="promote", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.common.batch_exit_code" [label="batch_exit_code", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.common.prepare_download_environment" [label="prepare_download_environment", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.cleanup_temp" [label="cleanup_temp", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.is_help" [label="is_help", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.check_command" [label="check_command", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.md5" [label="md5", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common._bytes" [label="_bytes", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.already_have" [label="already_have", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.atomic_fetch" [label="atomic_fetch", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.new_stage" [label="new_stage", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.promote" [label="promote", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.common.batch_exit_code" [label="batch_exit_code", fillcolor="#f4d9ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.ena_download" {
     label="lib.downloaders.ena_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ena_download.download_ena_worker" [label="download_ena_worker", fillcolor="#f4d9ff", shape=box];
-    "lib.downloaders.ena_download.download_ena" [label="download_ena", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.ena_download.download_ena_worker" [label="download_ena_worker", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.ena_download.download_ena" [label="download_ena", fillcolor="#ffe0e0", shape=box];
   }
   subgraph "cluster_lib.downloaders.ensembl" {
     label="lib.downloaders.ensembl"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ensembl.run_ensembl_download" [label="run_ensembl_download", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.ensembl.run_ensembl_download" [label="run_ensembl_download", fillcolor="#e0f7f5", shape=box];
   }
   subgraph "cluster_lib.downloaders.ensembl_download" {
     label="lib.downloaders.ensembl_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ensembl_download.get_latest_ensembl_release" [label="get_latest_ensembl_release", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ensembl_download.download_ensembl_fasta" [label="download_ensembl_fasta", fillcolor="#e0f7f5", shape=box];
+    "lib.downloaders.ensembl_download.get_latest_ensembl_release" [label="get_latest_ensembl_release", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ensembl_download.download_ensembl_fasta" [label="download_ensembl_fasta", fillcolor="#fff6cc", shape=box];
   }
   subgraph "cluster_lib.downloaders.gene" {
     label="lib.downloaders.gene"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.gene.run_gene_download" [label="run_gene_download", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.gene.run_gene_download" [label="run_gene_download", fillcolor="#cfe8ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.geo" {
     label="lib.downloaders.geo"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.geo.run_geo_download" [label="run_geo_download", fillcolor="#cfe8ff", shape=box];
+    "lib.downloaders.geo.run_geo_download" [label="run_geo_download", fillcolor="#d9f2d9", shape=box];
   }
   subgraph "cluster_lib.downloaders.geo_download" {
     label="lib.downloaders.geo_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.geo_download.retry_command" [label="retry_command", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.geo_download.validate_geo_accession" [label="validate_geo_accession", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.geo_download.geo_help_download_supplementary" [label="geo_help_download_supplementary", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.geo_download.geo_help_create_srr" [label="geo_help_create_srr", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.geo_download.download_geo_supplementary" [label="download_geo_supplementary", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.geo_download.create_srr_list_from_geo" [label="create_srr_list_from_geo", fillcolor="#d9f2d9", shape=box];
+    "lib.downloaders.geo_download.retry_command" [label="retry_command", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.geo_download.validate_geo_accession" [label="validate_geo_accession", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.geo_download.geo_help_download_supplementary" [label="geo_help_download_supplementary", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.geo_download.geo_help_create_srr" [label="geo_help_create_srr", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.geo_download.download_geo_supplementary" [label="download_geo_supplementary", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.geo_download.create_srr_list_from_geo" [label="create_srr_list_from_geo", fillcolor="#ffe8cc", shape=box];
   }
   subgraph "cluster_lib.downloaders.ncbi_download" {
     label="lib.downloaders.ncbi_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ncbi_download._download_genome_package" [label="_download_genome_package", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.ncbi_download.download_assembly" [label="download_assembly", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.ncbi_download.download_annotation" [label="download_annotation", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.ncbi_download._record_dir" [label="_record_dir", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.ncbi_download._download_genome_packages_parallel" [label="_download_genome_packages_parallel", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.ncbi_download._download_genome_package" [label="_download_genome_package", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.ncbi_download.download_assembly" [label="download_assembly", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.ncbi_download.download_annotation" [label="download_annotation", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.ncbi_download._record_dir" [label="_record_dir", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.ncbi_download._download_genome_packages_parallel" [label="_download_genome_packages_parallel", fillcolor="#f4d9ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.ncbi_search" {
     label="lib.downloaders.ncbi_search"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ncbi_search.search_metadata_by_organism" [label="search_metadata_by_organism", fillcolor="#f4d9ff", shape=box];
-    "lib.downloaders.ncbi_search.search_assemblies_by_organism" [label="search_assemblies_by_organism", fillcolor="#f4d9ff", shape=box];
-    "lib.downloaders.ncbi_search.extract_gene_ids_from_reference" [label="extract_gene_ids_from_reference", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.ncbi_search.search_metadata_by_organism" [label="search_metadata_by_organism", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.ncbi_search.search_assemblies_by_organism" [label="search_assemblies_by_organism", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.ncbi_search.extract_gene_ids_from_reference" [label="extract_gene_ids_from_reference", fillcolor="#ffe0e0", shape=box];
   }
   subgraph "cluster_lib.downloaders.ortholog" {
     label="lib.downloaders.ortholog"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ortholog.run_ortholog_download" [label="run_ortholog_download", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.ortholog.run_ortholog_download" [label="run_ortholog_download", fillcolor="#e0f7f5", shape=box];
   }
   subgraph "cluster_lib.downloaders.ortholog_download" {
     label="lib.downloaders.ortholog_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.ortholog_download.detect_accession_type" [label="detect_accession_type", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download._entrez_fetch" [label="_entrez_fetch", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download._elink_first_id" [label="_elink_first_id", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download._resolve_protein_to_gene" [label="_resolve_protein_to_gene", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download._resolve_nuccore_to_gene" [label="_resolve_nuccore_to_gene", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download.resolve_gene_id" [label="resolve_gene_id", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download._is_near_cap" [label="_is_near_cap", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download.fetch_orthologs" [label="fetch_orthologs", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download.download_ortholog" [label="download_ortholog", fillcolor="#e0f7f5", shape=box];
-    "lib.downloaders.ortholog_download.download_orthologs_batch" [label="download_orthologs_batch", fillcolor="#e0f7f5", shape=box];
+    "lib.downloaders.ortholog_download.detect_accession_type" [label="detect_accession_type", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download._entrez_fetch" [label="_entrez_fetch", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download._elink_first_id" [label="_elink_first_id", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download._resolve_protein_to_gene" [label="_resolve_protein_to_gene", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download._resolve_nuccore_to_gene" [label="_resolve_nuccore_to_gene", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download.resolve_gene_id" [label="resolve_gene_id", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download._is_near_cap" [label="_is_near_cap", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download.fetch_orthologs" [label="fetch_orthologs", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download.download_ortholog" [label="download_ortholog", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.ortholog_download.download_orthologs_batch" [label="download_orthologs_batch", fillcolor="#fff6cc", shape=box];
+  }
+  subgraph "cluster_lib.downloaders.pdb_search" {
+    label="lib.downloaders.pdb_search"; style="dashed"; fontname="Helvetica"; fontsize=11;
+    "lib.downloaders.pdb_search.search_structures" [label="search_structures", fillcolor="#cfe8ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.proteome" {
     label="lib.downloaders.proteome"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.proteome.run_proteome_download" [label="run_proteome_download", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.proteome.run_proteome_download" [label="run_proteome_download", fillcolor="#d9f2d9", shape=box];
   }
   subgraph "cluster_lib.downloaders.sra" {
     label="lib.downloaders.sra"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.sra.run_sra_download" [label="run_sra_download", fillcolor="#cfe8ff", shape=box];
+    "lib.downloaders.sra.run_sra_download" [label="run_sra_download", fillcolor="#ffe8cc", shape=box];
   }
   subgraph "cluster_lib.downloaders.sra_download" {
     label="lib.downloaders.sra_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.sra_download.validate_sra_accession" [label="validate_sra_accession", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download.validate_sra_accession" [label="validate_sra_accession", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download._download_sra_loop" [label="_download_sra_loop", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download._download_one_sra" [label="_download_one_sra", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download._download_fasterq" [label="_download_fasterq", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download._download_prefetch" [label="_download_prefetch", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download._download_parallel" [label="_download_parallel", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download.download_sra_fasterq" [label="download_sra_fasterq", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download.download_sra_prefetch" [label="download_sra_prefetch", fillcolor="#d9f2d9", shape=box];
-    "lib.downloaders.sra_download.download_parallel_fastq" [label="download_parallel_fastq", fillcolor="#d9f2d9", shape=box];
+    "lib.downloaders.sra_download.validate_sra_accession" [label="validate_sra_accession", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download.validate_sra_accession" [label="validate_sra_accession", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download._download_sra_loop" [label="_download_sra_loop", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download._download_one_sra" [label="_download_one_sra", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download._download_fasterq" [label="_download_fasterq", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download._download_prefetch" [label="_download_prefetch", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download._download_parallel" [label="_download_parallel", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download.download_sra_fasterq" [label="download_sra_fasterq", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download.download_sra_prefetch" [label="download_sra_prefetch", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.sra_download.download_parallel_fastq" [label="download_parallel_fastq", fillcolor="#f4d9ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.sra_info_download" {
     label="lib.downloaders.sra_info_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.sra_info_download.sra_info_help" [label="sra_info_help", fillcolor="#ffe8cc", shape=box];
-    "lib.downloaders.sra_info_download.create_runinfo_table" [label="create_runinfo_table", fillcolor="#ffe8cc", shape=box];
+    "lib.downloaders.sra_info_download.sra_info_help" [label="sra_info_help", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.sra_info_download.create_runinfo_table" [label="create_runinfo_table", fillcolor="#ffe0e0", shape=box];
   }
   subgraph "cluster_lib.downloaders.structure" {
     label="lib.downloaders.structure"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.structure.run_structure_download" [label="run_structure_download", fillcolor="#f4d9ff", shape=box];
+    "lib.downloaders.structure.run_structure_download" [label="run_structure_download", fillcolor="#e0f7f5", shape=box];
   }
   subgraph "cluster_lib.downloaders.structure_download" {
     label="lib.downloaders.structure_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.structure_download.download_alphafold" [label="download_alphafold", fillcolor="#ffe0e0", shape=box];
+    "lib.downloaders.structure_download.download_alphafold" [label="download_alphafold", fillcolor="#fff6cc", shape=box];
   }
   subgraph "cluster_lib.downloaders.transcriptome" {
     label="lib.downloaders.transcriptome"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.transcriptome.run_transcriptome_download" [label="run_transcriptome_download", fillcolor="#e0f7f5", shape=box];
+    "lib.downloaders.transcriptome.run_transcriptome_download" [label="run_transcriptome_download", fillcolor="#cfe8ff", shape=box];
   }
   subgraph "cluster_lib.downloaders.uniprot_download" {
     label="lib.downloaders.uniprot_download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.downloaders.uniprot_download.download_proteome" [label="download_proteome", fillcolor="#fff6cc", shape=box];
+    "lib.downloaders.uniprot_download.download_proteome" [label="download_proteome", fillcolor="#d9f2d9", shape=box];
   }
   subgraph "cluster_lib.logging" {
     label="lib.logging"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.logging.log_info" [label="log_info", fillcolor="#cfe8ff", shape=box];
-    "lib.logging.log_error" [label="log_error", fillcolor="#cfe8ff", shape=box];
-    "lib.logging.log_warning" [label="log_warning", fillcolor="#cfe8ff", shape=box];
-    "lib.logging.log_warn" [label="log_warn", fillcolor="#cfe8ff", shape=box];
-    "lib.logging.log_step" [label="log_step", fillcolor="#cfe8ff", shape=box];
-    "lib.logging.log_success" [label="log_success", fillcolor="#cfe8ff", shape=box];
-    "lib.logging.die" [label="die", fillcolor="#cfe8ff", shape=box];
+    "lib.logging.log_info" [label="log_info", fillcolor="#ffe8cc", shape=box];
+    "lib.logging.log_error" [label="log_error", fillcolor="#ffe8cc", shape=box];
+    "lib.logging.log_warning" [label="log_warning", fillcolor="#ffe8cc", shape=box];
+    "lib.logging.log_warn" [label="log_warn", fillcolor="#ffe8cc", shape=box];
+    "lib.logging.log_step" [label="log_step", fillcolor="#ffe8cc", shape=box];
+    "lib.logging.log_success" [label="log_success", fillcolor="#ffe8cc", shape=box];
+    "lib.logging.die" [label="die", fillcolor="#ffe8cc", shape=box];
   }
   subgraph "cluster_lib.manifest" {
     label="lib.manifest"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.manifest.init" [label="init", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.set_context" [label="set_context", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest._with_lock" [label="_with_lock", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.tool_versions" [label="tool_versions", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.record" [label="record", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.record_run_only" [label="record_run_only", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest._record_locked" [label="_record_locked", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.get" [label="get", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.stored_md5" [label="stored_md5", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.is_done" [label="is_done", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.add_run" [label="add_run", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest._add_run_locked" [label="_add_run_locked", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.emit" [label="emit", fillcolor="#d9f2d9", shape=box];
-    "lib.manifest.cleanup" [label="cleanup", fillcolor="#d9f2d9", shape=box];
+    "lib.manifest.init" [label="init", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.set_context" [label="set_context", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest._with_lock" [label="_with_lock", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.tool_versions" [label="tool_versions", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.record" [label="record", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.record_run_only" [label="record_run_only", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest._record_locked" [label="_record_locked", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.get" [label="get", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.stored_md5" [label="stored_md5", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.is_done" [label="is_done", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.add_run" [label="add_run", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest._add_run_locked" [label="_add_run_locked", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.emit" [label="emit", fillcolor="#f4d9ff", shape=box];
+    "lib.manifest.cleanup" [label="cleanup", fillcolor="#f4d9ff", shape=box];
   }
   subgraph "cluster_lib.parsers.download" {
     label="lib.parsers.download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.parsers.download.parse_download_arguments" [label="parse_download_arguments", fillcolor="#ffe8cc", shape=box];
+    "lib.parsers.download.parse_download_arguments" [label="parse_download_arguments", fillcolor="#ffe0e0", shape=box];
   }
   subgraph "cluster_lib.parsers.search" {
     label="lib.parsers.search"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.parsers.search.parse_search_arguments" [label="parse_search_arguments", fillcolor="#f4d9ff", shape=box];
+    "lib.parsers.search.parse_search_arguments" [label="parse_search_arguments", fillcolor="#e0f7f5", shape=box];
   }
   subgraph "cluster_lib.validation" {
     label="lib.validation"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validation.require_datasets" [label="require_datasets", fillcolor="#ffe0e0", shape=box];
-    "lib.validation.require_jq" [label="require_jq", fillcolor="#ffe0e0", shape=box];
-    "lib.validation.validate_accession" [label="validate_accession", fillcolor="#ffe0e0", shape=box];
+    "lib.validation.require_datasets" [label="require_datasets", fillcolor="#fff6cc", shape=box];
+    "lib.validation.require_jq" [label="require_jq", fillcolor="#fff6cc", shape=box];
+    "lib.validation.validate_accession" [label="validate_accession", fillcolor="#fff6cc", shape=box];
   }
   subgraph "cluster_lib.validators.annotation" {
     label="lib.validators.annotation"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.annotation.validate_annotation_download" [label="validate_annotation_download", fillcolor="#e0f7f5", shape=box];
+    "lib.validators.annotation.validate_annotation_download" [label="validate_annotation_download", fillcolor="#cfe8ff", shape=box];
   }
   subgraph "cluster_lib.validators.assembly" {
     label="lib.validators.assembly"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.assembly.validate_assembly_download" [label="validate_assembly_download", fillcolor="#fff6cc", shape=box];
+    "lib.validators.assembly.validate_assembly_download" [label="validate_assembly_download", fillcolor="#d9f2d9", shape=box];
   }
   subgraph "cluster_lib.validators.bioproject" {
     label="lib.validators.bioproject"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.bioproject.validate_bioproject_srr" [label="validate_bioproject_srr", fillcolor="#cfe8ff", shape=box];
+    "lib.validators.bioproject.validate_bioproject_srr" [label="validate_bioproject_srr", fillcolor="#ffe8cc", shape=box];
   }
   subgraph "cluster_lib.validators.download" {
     label="lib.validators.download"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.download.validate_download_inputs" [label="validate_download_inputs", fillcolor="#d9f2d9", shape=box];
+    "lib.validators.download.validate_download_inputs" [label="validate_download_inputs", fillcolor="#f4d9ff", shape=box];
   }
   subgraph "cluster_lib.validators.ensembl" {
     label="lib.validators.ensembl"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.ensembl.validate_ensembl_download" [label="validate_ensembl_download", fillcolor="#ffe8cc", shape=box];
+    "lib.validators.ensembl.validate_ensembl_download" [label="validate_ensembl_download", fillcolor="#ffe0e0", shape=box];
   }
   subgraph "cluster_lib.validators.gene" {
     label="lib.validators.gene"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.gene.validate_gene_download" [label="validate_gene_download", fillcolor="#f4d9ff", shape=box];
+    "lib.validators.gene.validate_gene_download" [label="validate_gene_download", fillcolor="#e0f7f5", shape=box];
   }
   subgraph "cluster_lib.validators.geo" {
     label="lib.validators.geo"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.geo.validate_geo_download" [label="validate_geo_download", fillcolor="#ffe0e0", shape=box];
+    "lib.validators.geo.validate_geo_download" [label="validate_geo_download", fillcolor="#fff6cc", shape=box];
   }
   subgraph "cluster_lib.validators.ortholog" {
     label="lib.validators.ortholog"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.ortholog.validate_ortholog_download" [label="validate_ortholog_download", fillcolor="#e0f7f5", shape=box];
+    "lib.validators.ortholog.validate_ortholog_download" [label="validate_ortholog_download", fillcolor="#cfe8ff", shape=box];
   }
   subgraph "cluster_lib.validators.proteome" {
     label="lib.validators.proteome"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.proteome.validate_proteome_download" [label="validate_proteome_download", fillcolor="#fff6cc", shape=box];
+    "lib.validators.proteome.validate_proteome_download" [label="validate_proteome_download", fillcolor="#d9f2d9", shape=box];
   }
   subgraph "cluster_lib.validators.search" {
     label="lib.validators.search"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.search.validate_search_inputs" [label="validate_search_inputs", fillcolor="#cfe8ff", shape=box];
+    "lib.validators.search.validate_search_inputs" [label="validate_search_inputs", fillcolor="#ffe8cc", shape=box];
+    "lib.validators.search._validate_assemblies" [label="_validate_assemblies", fillcolor="#ffe8cc", shape=box];
+    "lib.validators.search._validate_pdb" [label="_validate_pdb", fillcolor="#ffe8cc", shape=box];
+    "lib.validators.search._validate_alphafold" [label="_validate_alphafold", fillcolor="#ffe8cc", shape=box];
   }
   subgraph "cluster_lib.validators.sra" {
     label="lib.validators.sra"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.sra.validate_sra_download" [label="validate_sra_download", fillcolor="#d9f2d9", shape=box];
+    "lib.validators.sra.validate_sra_download" [label="validate_sra_download", fillcolor="#f4d9ff", shape=box];
   }
   subgraph "cluster_lib.validators.structure" {
     label="lib.validators.structure"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.structure.validate_structure_download" [label="validate_structure_download", fillcolor="#ffe8cc", shape=box];
+    "lib.validators.structure.validate_structure_download" [label="validate_structure_download", fillcolor="#ffe0e0", shape=box];
   }
   subgraph "cluster_lib.validators.transcriptome" {
     label="lib.validators.transcriptome"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "lib.validators.transcriptome.validate_transcriptome_download" [label="validate_transcriptome_download", fillcolor="#f4d9ff", shape=box];
+    "lib.validators.transcriptome.validate_transcriptome_download" [label="validate_transcriptome_download", fillcolor="#e0f7f5", shape=box];
   }
   subgraph "cluster_seqfetcher" {
     label="seqfetcher"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "seqfetcher" [label="seqfetcher", fillcolor="#ffe0e0", shape=component];
-    "seqfetcher.show_help" [label="show_help", fillcolor="#ffe0e0", shape=box];
-    "seqfetcher.parse_global_options" [label="parse_global_options", fillcolor="#ffe0e0", shape=box];
-    "seqfetcher.main" [label="main", fillcolor="#ffe0e0", shape=box];
+    "seqfetcher" [label="seqfetcher", fillcolor="#fff6cc", shape=component];
+    "seqfetcher.show_help" [label="show_help", fillcolor="#fff6cc", shape=box];
+    "seqfetcher.parse_global_options" [label="parse_global_options", fillcolor="#fff6cc", shape=box];
+    "seqfetcher.main" [label="main", fillcolor="#fff6cc", shape=box];
   }
   subgraph "cluster_scripts.check_deps" {
     label="scripts.check_deps"; style="dashed"; fontname="Helvetica"; fontsize=11;
-    "scripts.check_deps" [label="scripts.check_deps", fillcolor="#e0f7f5", shape=component];
-    "scripts.check_deps.check" [label="check", fillcolor="#e0f7f5", shape=box];
+    "scripts.check_deps" [label="scripts.check_deps", fillcolor="#cfe8ff", shape=component];
+    "scripts.check_deps.check" [label="check", fillcolor="#cfe8ff", shape=box];
   }
   "lib.commands.bioproject_srr.execute_bioproject_srr" -> "lib.downloaders.bioproject_download.create_srr_list_from_bioproject";
   "lib.commands.bioproject_srr.execute_bioproject_srr" -> "lib.downloaders.common.cleanup_temp";
@@ -308,10 +320,12 @@ digraph call_graph {
   "lib.commands.geo_srr.run_geo_srr" -> "lib.manifest.cleanup";
   "lib.commands.geo_srr.run_geo_srr" -> "lib.manifest.init";
   "lib.commands.geo_srr.run_geo_srr" -> "lib.manifest.set_context";
+  "lib.commands.search.execute_search" -> "lib.downloaders.alphafold_search.search_models";
   "lib.commands.search.execute_search" -> "lib.downloaders.common.cleanup_temp";
   "lib.commands.search.execute_search" -> "lib.downloaders.ncbi_search.extract_gene_ids_from_reference";
   "lib.commands.search.execute_search" -> "lib.downloaders.ncbi_search.search_assemblies_by_organism";
   "lib.commands.search.execute_search" -> "lib.downloaders.ncbi_search.search_metadata_by_organism";
+  "lib.commands.search.execute_search" -> "lib.downloaders.pdb_search.search_structures";
   "lib.commands.search.execute_search" -> "lib.logging.log_error";
   "lib.commands.search.execute_search" -> "lib.logging.log_info";
   "lib.commands.search.execute_search" -> "lib.logging.log_warn";
@@ -333,6 +347,15 @@ digraph call_graph {
   "lib.commands.sra_info.run_sra_info" -> "lib.manifest.cleanup";
   "lib.commands.sra_info.run_sra_info" -> "lib.manifest.init";
   "lib.commands.sra_info.run_sra_info" -> "lib.manifest.set_context";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.downloaders.alphafold_search._urlenc";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.downloaders.common.check_command";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.logging.log_error";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.logging.log_info";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.logging.log_step";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.logging.log_warn";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.logging.log_warning";
+  "lib.downloaders.alphafold_search.search_models" -> "lib.validation.require_jq";
+  "lib.downloaders.alphafold_search.search_models" -> "scripts.check_deps.check";
   "lib.downloaders.annotation.run_annotation_download" -> "lib.downloaders.common.cleanup_temp";
   "lib.downloaders.annotation.run_annotation_download" -> "lib.downloaders.common.prepare_download_environment";
   "lib.downloaders.annotation.run_annotation_download" -> "lib.downloaders.ncbi_download.download_annotation";
@@ -499,6 +522,14 @@ digraph call_graph {
   "lib.downloaders.ortholog_download.fetch_orthologs" -> "lib.logging.log_warning";
   "lib.downloaders.ortholog_download.resolve_gene_id" -> "lib.downloaders.ortholog_download._resolve_nuccore_to_gene";
   "lib.downloaders.ortholog_download.resolve_gene_id" -> "lib.downloaders.ortholog_download._resolve_protein_to_gene";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.downloaders.common.check_command";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.logging.log_error";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.logging.log_info";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.logging.log_step";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.logging.log_warn";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.logging.log_warning";
+  "lib.downloaders.pdb_search.search_structures" -> "lib.validation.require_jq";
+  "lib.downloaders.pdb_search.search_structures" -> "scripts.check_deps.check";
   "lib.downloaders.proteome.run_proteome_download" -> "lib.downloaders.common.cleanup_temp";
   "lib.downloaders.proteome.run_proteome_download" -> "lib.downloaders.common.prepare_download_environment";
   "lib.downloaders.proteome.run_proteome_download" -> "lib.downloaders.uniprot_download.download_proteome";
@@ -548,6 +579,8 @@ digraph call_graph {
   "lib.downloaders.structure_download.download_alphafold" -> "lib.logging.log_error";
   "lib.downloaders.structure_download.download_alphafold" -> "lib.logging.log_info";
   "lib.downloaders.structure_download.download_alphafold" -> "lib.logging.log_success";
+  "lib.downloaders.structure_download.download_alphafold" -> "lib.logging.log_warn";
+  "lib.downloaders.structure_download.download_alphafold" -> "lib.logging.log_warning";
   "lib.downloaders.structure_download.download_alphafold" -> "lib.manifest.record";
   "lib.downloaders.structure_download.download_alphafold" -> "lib.manifest.record_run_only";
   "lib.downloaders.structure_download.download_alphafold" -> "lib.manifest.stored_md5";
@@ -583,6 +616,7 @@ digraph call_graph {
   "lib.parsers.download.parse_download_arguments" -> "lib.logging.log_error";
   "lib.parsers.download.parse_download_arguments" -> "seqfetcher.show_help";
   "lib.parsers.search.parse_search_arguments" -> "lib.logging.log_error";
+  "lib.parsers.search.parse_search_arguments" -> "scripts.check_deps.check";
   "lib.parsers.search.parse_search_arguments" -> "seqfetcher.show_help";
   "lib.validation.require_datasets" -> "lib.logging.die";
   "lib.validation.require_jq" -> "lib.logging.die";
@@ -607,7 +641,17 @@ digraph call_graph {
   "lib.validators.geo.validate_geo_download" -> "lib.logging.log_error";
   "lib.validators.ortholog.validate_ortholog_download" -> "lib.logging.log_error";
   "lib.validators.proteome.validate_proteome_download" -> "lib.logging.log_error";
+  "lib.validators.search._validate_alphafold" -> "lib.logging.log_error";
+  "lib.validators.search._validate_alphafold" -> "lib.logging.log_warn";
+  "lib.validators.search._validate_alphafold" -> "lib.logging.log_warning";
+  "lib.validators.search._validate_assemblies" -> "lib.logging.log_error";
+  "lib.validators.search._validate_pdb" -> "lib.logging.log_error";
+  "lib.validators.search._validate_pdb" -> "lib.logging.log_warn";
+  "lib.validators.search._validate_pdb" -> "lib.logging.log_warning";
   "lib.validators.search.validate_search_inputs" -> "lib.logging.log_error";
+  "lib.validators.search.validate_search_inputs" -> "lib.validators.search._validate_alphafold";
+  "lib.validators.search.validate_search_inputs" -> "lib.validators.search._validate_assemblies";
+  "lib.validators.search.validate_search_inputs" -> "lib.validators.search._validate_pdb";
   "lib.validators.sra.validate_sra_download" -> "lib.logging.log_error";
   "lib.validators.structure.validate_structure_download" -> "lib.logging.log_error";
   "lib.validators.transcriptome.validate_transcriptome_download" -> "lib.logging.log_error";

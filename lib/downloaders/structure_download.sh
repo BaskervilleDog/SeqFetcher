@@ -83,6 +83,58 @@ downloaders_structure_download::download_pdb() {
     return 0
 }
 
+# downloaders_structure_download::interactive_from_table <tsv> <pdb|alphafold>
+#   Prompts for row numbers/ranges from a search results table, then hands the
+#   selected column-1 ids straight to ::run. Mirrors
+#   downloaders_ncbi_download::download_assemblies_interactive.
+downloaders_structure_download::interactive_from_table() {
+    local tsv="$1" kind="$2"
+    [[ -f "$tsv" ]] || { log_error "Results table not found: $tsv"; return 1; }
+
+    local noun="structure"; [[ "$kind" == "alphafold" ]] && noun="AlphaFold model"
+
+    echo >&2
+    log_info "Enter row numbers to download as ${noun}s (comma/space separated, or ranges like 1-5)"
+    read -rp "IDs: " selection
+    [[ -z "$selection" ]] && { log_info "No selection made"; return 0; }
+
+    local -a rows=() item
+    selection="${selection//,/ }"
+    for item in $selection; do
+        if [[ "$item" =~ ^([0-9]+)-([0-9]+)$ ]]; then
+            local i
+            for ((i=BASH_REMATCH[1]; i<=BASH_REMATCH[2]; i++)); do rows+=("$i"); done
+        elif [[ "$item" =~ ^[0-9]+$ ]]; then
+            rows+=("$item")
+        else
+            log_warning "Ignoring invalid selection: $item"
+        fi
+    done
+    [[ ${#rows[@]} -eq 0 ]] && { log_error "No valid rows selected"; return 1; }
+
+    local sel_file; sel_file="$(mktemp)"
+    local r id
+    for r in "${rows[@]}"; do
+        id="$(sed -n "$((r + 1))p" "$tsv" | cut -f1)"
+        [[ -n "$id" ]] && echo "$id" >> "$sel_file" || log_warning "Row $r not in results"
+    done
+    [[ -s "$sel_file" ]] || { log_error "No ids resolved from the selection"; rm -f "$sel_file"; return 1; }
+
+    log_info "Downloading $(grep -c . "$sel_file") ${noun}(s)..."
+
+    STRUCTURE_ALPHAFOLD="" STRUCTURE_ALPHAFOLD_FILE="" STRUCTURE_PDB="" STRUCTURE_PDB_FILE=""
+    if [[ "$kind" == "alphafold" ]]; then
+        STRUCTURE_ALPHAFOLD_FILE="$sel_file"
+    else
+        STRUCTURE_PDB_FILE="$sel_file"
+    fi
+
+    local rc=0
+    downloaders_structure_download::run "$OUTDIR" "${STRUCTURE_FORMAT:-pdb}" || rc=$?
+    rm -f "$sel_file"
+    return "$rc"
+}
+
 # Collect ids from a comma list + an optional file (one per line, # comments ok)
 downloaders_structure_download::_ids() {
     local csv="$1" file="$2"

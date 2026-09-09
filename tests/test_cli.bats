@@ -99,10 +99,19 @@ SEQFETCHER="$BASE_DIR/seqfetcher.sh"
     [ "$status" -eq 2 ]
 }
 
+@test "search --pdb / --alphafold with no filter exits 2" {
+    run "$SEQFETCHER" search --pdb
+    [ "$status" -eq 2 ]
+    run "$SEQFETCHER" search --alphafold
+    [ "$status" -eq 2 ]
+}
+
 @test "help lists the new commands and flags" {
     run "$SEQFETCHER" --help
     [[ "$output" == *"sra-info"* ]]
     [[ "$output" == *"--annotation"* ]]
     [[ "$output" == *"--structure"* ]]
     [[ "$output" == *"--proteome-id"* ]]
+    [[ "$output" == *"--pdb"* ]]
+    [[ "$output" == *"--alphafold"* ]]
 }

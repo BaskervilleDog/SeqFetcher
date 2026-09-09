@@ -52,6 +52,51 @@ setup() {
     [ "$OUTPUT_FILE" = "${OUTDIR}/tables/gene_ids.txt" ]
 }
 
+@test "validators_search::validate_search_inputs --pdb needs a filter" {
+    MODE="pdb"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_search::validate_search_inputs --pdb accepts --organism and defaults the table path" {
+    MODE="pdb"; ORGANISM="Homo sapiens"
+    validators_search::validate_search_inputs
+    [ "$OUTPUT_FILE" = "${OUTDIR}/tables/pdb_structures.tsv" ]
+}
+
+@test "validators_search::validate_search_inputs --pdb rejects a bad --method / --max-resolution / --sort" {
+    MODE="pdb"; ORGANISM="Homo sapiens"
+    SEARCH_METHOD="bogus"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 2 ]
+
+    reset_config; MODE="pdb"; ORGANISM="Homo sapiens"; SEARCH_MAX_RESOLUTION="abc"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 2 ]
+
+    reset_config; MODE="pdb"; ORGANISM="Homo sapiens"; SEARCH_SORT="sideways"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_search::validate_search_inputs --alphafold needs a filter" {
+    MODE="alphafold"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 2 ]
+}
+
+@test "validators_search::validate_search_inputs --alphafold accepts --gene and defaults the table path" {
+    MODE="alphafold"; SEARCH_GENE="TP53"
+    validators_search::validate_search_inputs
+    [ "$OUTPUT_FILE" = "${OUTDIR}/tables/alphafold_structures.tsv" ]
+}
+
+@test "validators_search::validate_search_inputs rejects an unknown --mode" {
+    MODE="galaxy"; ORGANISM="E. coli"
+    run validators_search::validate_search_inputs
+    [ "$status" -eq 2 ]
+}
+
 # --- validators_assembly -----------------------------------------------
 
 @test "validators_assembly::validate_assembly_download fails without --accession/--accession-file" {

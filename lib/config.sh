@@ -20,13 +20,12 @@
 
 # Single source of truth for the version string (shown in --version, the
 # help banner, and recorded in seqfetcher.lock.json).
-SEQFETCHER_VERSION="1.2.0"
+SEQFETCHER_VERSION="1.3.0"
 
 # =====================================
 # General defaults
 # =====================================
 
-MODE="assemblies"
 OUTDIR="downloads"
 OUTPUT_FILE=""
 TEMP_DIR="temp_downloads"
@@ -46,8 +45,27 @@ REQUIRE_PINNED=false # --require-pinned : refuse sources that resolve "latest"
 ORGANISM=""
 INTERACTIVE=false
 EXTRACT_GENES=false
-# How many top-ranked assemblies to display and write to the results table.
+# How many top-ranked results to display and write to the results table.
 TOP_N=50
+# assemblies (default) | pdb | alphafold
+MODE="assemblies"
+
+# --- structure search: search --pdb / search --alphafold ---
+SEARCH_TEXT=""              # both: free-text query
+SEARCH_METHOD=""            # pdb: x-ray | em | nmr
+SEARCH_MAX_RESOLUTION=""    # pdb: max resolution in Angstrom
+SEARCH_UNIPROT=""           # pdb: comma-separated UniProt accessions
+SEARCH_LIGAND=""            # pdb: comma-separated chemical component ids
+SEARCH_AFTER_DATE=""        # pdb: released on/after YYYY-MM-DD
+SEARCH_BEFORE_DATE=""       # pdb: released on/before YYYY-MM-DD
+SEARCH_MIN_CHAINS=""        # pdb: minimum protein polymer-entity count
+SEARCH_SORT=""              # pdb: resolution | date | score
+SEARCH_GENE=""              # alphafold: UniProt gene name
+SEARCH_KEYWORD=""           # alphafold: UniProt keyword (KW-id or word)
+SEARCH_PROTEOME=""          # alphafold: UniProt proteome id UPXXXXXXXXX
+SEARCH_TAXON_ID=""          # alphafold: NCBI taxonomy id
+SEARCH_REVIEWED=false       # alphafold: Swiss-Prot entries only
+CHECK_ALPHAFOLD=false       # alphafold: verify each model + add pLDDT columns
 
 # =====================================
 # Assembly downloads
