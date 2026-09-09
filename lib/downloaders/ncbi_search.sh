@@ -133,25 +133,37 @@ downloaders_ncbi_search::search_assemblies_by_organism() {
         return 1
     }
     
-    local tmp_json tmp_tsv
+    local tmp_json tmp_tsv tmp_err
     tmp_json=$(mktemp) || return 1
     tmp_tsv=$(mktemp) || { rm -f "$tmp_json"; return 1; }
-    
-    # Fetch assemblies with error handling
+    tmp_err=$(mktemp) || { rm -f "$tmp_json" "$tmp_tsv"; return 1; }
+
+    # Fetch assemblies with error handling.
+    # stderr goes to its own file - never merged into $tmp_json, or notices
+    # like "New version of client available" corrupt the JSON and break jq.
     if ! datasets summary genome taxon "$organism" \
         --assembly-level complete,chromosome,scaffold,contig \
-        --limit 999999 > "$tmp_json" 2>&1; then
+        --limit 999999 > "$tmp_json" 2>"$tmp_err"; then
         log_error "Failed to fetch data from NCBI"
-        rm -f "$tmp_json" "$tmp_tsv"
+        [[ -s "$tmp_err" ]] && log_error "$(cat "$tmp_err")"
+        rm -f "$tmp_json" "$tmp_tsv" "$tmp_err"
         return 1
     fi
+    rm -f "$tmp_err"
     
     [[ ! -s "$tmp_json" ]] && {
         log_error "No data returned from NCBI"
         rm -f "$tmp_json" "$tmp_tsv"
         return 1
     }
-    
+
+    if ! jq -e . "$tmp_json" >/dev/null 2>&1; then
+        log_error "NCBI returned a non-JSON response:"
+        log_error "$(head -c 200 "$tmp_json")"
+        rm -f "$tmp_json" "$tmp_tsv"
+        return 1
+    fi
+
     # Combined stats extraction (single jq pass)
     local stats
     stats=$(jq -r '
@@ -265,18 +277,22 @@ downloaders_ncbi_search::extract_gene_ids_from_reference() {
     command -v jq >/dev/null 2>&1 || { log_error "jq is required"; return 1; }
     command -v parallel >/dev/null 2>&1 || { log_error "GNU parallel is required"; return 1; }
 
-    local tmp_json tmp_dir
+    local tmp_json tmp_dir tmp_err
     tmp_json=$(mktemp) || return 1
     tmp_dir=$(mktemp -d) || { rm -f "$tmp_json"; return 1; }
+    tmp_err=$(mktemp) || { rm -f "$tmp_json"; rm -rf "$tmp_dir"; return 1; }
 
     log_info "Searching for reference genome..."
+    # stderr to its own file, so client notices don't corrupt the JSON.
     if ! datasets summary genome taxon "$organism" \
         --assembly-level complete,chromosome \
-        --limit 999999 > "$tmp_json" 2>&1; then
+        --limit 999999 > "$tmp_json" 2>"$tmp_err"; then
         log_error "Failed to fetch genome data"
-        rm -f "$tmp_json" && rm -rf "$tmp_dir"
+        [[ -s "$tmp_err" ]] && log_error "$(cat "$tmp_err")"
+        rm -f "$tmp_json" "$tmp_err" && rm -rf "$tmp_dir"
         return 1
     fi
+    rm -f "$tmp_err"
 
     [[ ! -s "$tmp_json" ]] && { log_error "No genome data returned"; rm -f "$tmp_json"; rm -rf "$tmp_dir"; return 1; }
 
