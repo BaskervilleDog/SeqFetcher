@@ -3,11 +3,11 @@
 parsers_search::parse_search_arguments() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --organism)        ORGANISM="$2"; shift 2 ;;
-            --top)             TOP_N="$2"; shift 2 ;;
-            --mode)            MODE="$2"; shift 2 ;;
-            --outdir)          OUTDIR="$2"; shift 2 ;;
-            --output)          OUTPUT_FILE="$2"; shift 2 ;;
+            --organism)        ORGANISM="$2"; shift 2 || shift ;;
+            --top)             TOP_N="$2"; shift 2 || shift ;;
+            --mode)            MODE="$2"; shift 2 || shift ;;
+            --outdir)          OUTDIR="$2"; shift 2 || shift ;;
+            --output)          OUTPUT_FILE="$2"; shift 2 || shift ;;
             --interactive|-i)  INTERACTIVE=true; shift ;;
             --extract-genes)   EXTRACT_GENES=true; shift ;;
 
@@ -16,21 +16,21 @@ parsers_search::parse_search_arguments() {
             --alphafold)       MODE="alphafold"; shift ;;
 
             # --- shared / PDB filters ---
-            --text)            SEARCH_TEXT="$2"; shift 2 ;;
-            --method)          SEARCH_METHOD="$2"; shift 2 ;;
-            --max-resolution)  SEARCH_MAX_RESOLUTION="$2"; shift 2 ;;
-            --uniprot)         SEARCH_UNIPROT="$2"; shift 2 ;;
-            --ligand)          SEARCH_LIGAND="$2"; shift 2 ;;
-            --after-date)      SEARCH_AFTER_DATE="$2"; shift 2 ;;
-            --before-date)     SEARCH_BEFORE_DATE="$2"; shift 2 ;;
-            --min-chains)      SEARCH_MIN_CHAINS="$2"; shift 2 ;;
-            --sort)            SEARCH_SORT="$2"; shift 2 ;;
+            --text)            SEARCH_TEXT="$2"; shift 2 || shift ;;
+            --method)          SEARCH_METHOD="$2"; shift 2 || shift ;;
+            --max-resolution)  SEARCH_MAX_RESOLUTION="$2"; shift 2 || shift ;;
+            --uniprot)         SEARCH_UNIPROT="$2"; shift 2 || shift ;;
+            --ligand)          SEARCH_LIGAND="$2"; shift 2 || shift ;;
+            --after-date)      SEARCH_AFTER_DATE="$2"; shift 2 || shift ;;
+            --before-date)     SEARCH_BEFORE_DATE="$2"; shift 2 || shift ;;
+            --min-chains)      SEARCH_MIN_CHAINS="$2"; shift 2 || shift ;;
+            --sort)            SEARCH_SORT="$2"; shift 2 || shift ;;
 
             # --- AlphaFold (UniProt) filters ---
-            --gene)            SEARCH_GENE="$2"; shift 2 ;;
-            --keyword)         SEARCH_KEYWORD="$2"; shift 2 ;;
-            --proteome)        SEARCH_PROTEOME="$2"; shift 2 ;;
-            --taxon-id)        SEARCH_TAXON_ID="$2"; shift 2 ;;
+            --gene)            SEARCH_GENE="$2"; shift 2 || shift ;;
+            --keyword)         SEARCH_KEYWORD="$2"; shift 2 || shift ;;
+            --proteome)        SEARCH_PROTEOME="$2"; shift 2 || shift ;;
+            --taxon-id)        SEARCH_TAXON_ID="$2"; shift 2 || shift ;;
             --reviewed)        SEARCH_REVIEWED=true; shift ;;
             --check-alphafold) CHECK_ALPHAFOLD=true; shift ;;
 

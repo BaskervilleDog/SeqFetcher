@@ -52,9 +52,9 @@ downloaders_bioproject_download::create_srr_list_from_bioproject() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --bioproject) bioproject="$2";    shift 2 ;;
-            --out)        output_file="$2";   shift 2 ;;
-            --outdir)     output_dir="$2";    shift 2 ;;
+            --bioproject) bioproject="$2";    shift 2 || shift ;;
+            --out)        output_file="$2";   shift 2 || shift ;;
+            --outdir)     output_dir="$2";    shift 2 || shift ;;
             --help|-h)    downloaders_bioproject_download::bioproject_help_create_srr; return 0 ;;
             *)
                 log_error "Unknown option: $1"

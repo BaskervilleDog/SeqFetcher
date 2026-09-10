@@ -42,10 +42,10 @@ downloaders_sra_info_download::create_runinfo_table() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --accession)      accessions_csv="$2"; shift 2 ;;
-            --accession-file) accession_file="$2"; shift 2 ;;
-            --out)            output_file="$2";    shift 2 ;;
-            --outdir)         output_dir="$2";     shift 2 ;;
+            --accession)      accessions_csv="$2"; shift 2 || shift ;;
+            --accession-file) accession_file="$2"; shift 2 || shift ;;
+            --out)            output_file="$2";    shift 2 || shift ;;
+            --outdir)         output_dir="$2";     shift 2 || shift ;;
             --help|-h)        downloaders_sra_info_download::sra_info_help; return 0 ;;
             *)
                 log_error "Unknown option: $1"

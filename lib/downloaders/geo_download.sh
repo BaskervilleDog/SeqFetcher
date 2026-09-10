@@ -91,9 +91,9 @@ downloaders_geo_download::download_geo_supplementary() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --geo)
-                geo_accession="$2"; shift 2 ;;
+                geo_accession="$2"; shift 2 || shift ;;
             --outdir)
-                output_dir="$2"; shift 2 ;;
+                output_dir="$2"; shift 2 || shift ;;
             --help|-h)
                 downloaders_geo_download::geo_help_download_supplementary; return 0 ;;
             *)
@@ -175,9 +175,9 @@ downloaders_geo_download::create_srr_list_from_geo() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --geo)     geo_accession="$2"; shift 2 ;;
-            --out)     output_file="$2";   shift 2 ;;
-            --outdir)  output_dir="$2";    shift 2 ;;
+            --geo)     geo_accession="$2"; shift 2 || shift ;;
+            --out)     output_file="$2";   shift 2 || shift ;;
+            --outdir)  output_dir="$2";    shift 2 || shift ;;
             --help|-h) downloaders_geo_download::geo_help_create_srr; return 0 ;;
             *)
                 log_error "Unknown option: $1"

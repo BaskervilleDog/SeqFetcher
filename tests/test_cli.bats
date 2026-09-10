@@ -106,6 +106,21 @@ SEQFETCHER="$BASE_DIR/seqfetcher.sh"
     [ "$status" -eq 2 ]
 }
 
+@test "a value-taking flag as the final argument does not hang the arg parser" {
+    # regression: `shift 2` past the end used to loop forever (bug: --sort)
+    for cmd in \
+        "search --organism" \
+        "search --pdb --sort" \
+        "download --accession" \
+        "sra-info --accession" \
+        "geo-srr --geo" \
+        "bp-srr --bioproject"
+    do
+        run timeout 15 "$SEQFETCHER" $cmd
+        [ "$status" -ne 124 ]   # 124 == timeout fired == still hanging
+    done
+}
+
 @test "help lists the new commands and flags" {
     run "$SEQFETCHER" --help
     [[ "$output" == *"sra-info"* ]]
